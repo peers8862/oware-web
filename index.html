@@ -329,6 +329,22 @@
     *{animation-duration:.001ms !important;transition-duration:.001ms !important}
   }
 
+  /* ---- board colour (hue) picker ---- */
+  .board-area{ display:flex;align-items:stretch;gap:clamp(6px,1.6vw,12px);max-width:680px;margin:0 auto }
+  .board-area .board{ flex:1 1 auto;min-width:0 }
+  .hue-picker{ display:flex;flex-direction:column;justify-content:center;gap:clamp(7px,1.6vw,11px);flex:0 0 auto;padding:2px }
+  .hue-sw{ width:clamp(16px,4.4vw,22px);height:clamp(16px,4.4vw,22px);border-radius:50%;border:0;padding:0;
+    background:none;cursor:pointer;position:relative;flex:0 0 auto;
+    transition:transform .1s, box-shadow .12s }
+  .hue-sw .hue-chip{ display:block;width:100%;height:100%;border-radius:50%;
+    background:linear-gradient(155deg, var(--wood-hi), var(--wood) 40%, var(--wood-lo));
+    box-shadow:inset 0 1px 0 #ffffff33, inset 0 0 0 1px #00000066, 0 1px 2px #00000088 }
+  .hue-sw:hover{ transform:scale(1.1) }
+  .hue-sw.sel{ box-shadow:0 0 0 2px var(--brass-bright), 0 0 8px -2px var(--brass) }
+  .hue-sw:focus-visible{ outline:2px solid var(--brass-bright);outline-offset:2px }
+  body.focus .board-area{ display:block;max-width:none }
+  body.focus .hue-picker{ display:none }
+
   /* ---- learning feature ---- */
   .badge{
     display:none;min-width:16px;height:16px;padding:0 4px;border-radius:9px;
@@ -411,6 +427,8 @@
     <p class="tagline">Oware · the sowing game</p>
   </header>
 
+  <div class="board-area">
+  <div class="hue-picker" id="huePicker" role="group" aria-label="Board colour"></div>
   <div class="board" role="group" aria-label="Oware board">
     <div class="store" id="storeLeft">
       <span class="num" id="scoreTop">0</span>
@@ -427,6 +445,7 @@
       <span class="num" id="scoreBot">0</span>
       <span class="who" id="whoBot">You</span>
     </div>
+  </div>
   </div>
 
   <p class="status" id="status">Your move — pick one of your houses to sow.</p>
@@ -1152,6 +1171,24 @@ function concede(){
   render();
 }
 
+/* ---- board colour (hue) picker: rotates every board colour together,
+   preserving each element's lightness/contrast so all stay legible ---- */
+const HUE_KEY='zako-oware-hue';
+const HUES=[{deg:0,label:'Amber (default)'},{deg:-35,label:'Rose'},{deg:55,label:'Olive'},{deg:120,label:'Green'},{deg:170,label:'Teal'},{deg:215,label:'Blue'},{deg:275,label:'Violet'}];
+function hueLoad(){ const v=parseInt(localStorage.getItem(HUE_KEY),10); return isNaN(v)?0:v; }
+function hueApply(deg){ const b=document.querySelector('.board'); if(b) b.style.filter = deg ? ('hue-rotate('+deg+'deg)') : ''; }
+function hueRenderPicker(){
+  const host=$('huePicker'); if(!host) return; host.innerHTML=''; const cur=hueLoad();
+  for(const h of HUES){
+    const s=document.createElement('button'); s.type='button'; s.className='hue-sw'+(h.deg===cur?' sel':'');
+    s.title=h.label; s.setAttribute('aria-label','Board colour: '+h.label);
+    const chip=document.createElement('span'); chip.className='hue-chip'; chip.style.filter='hue-rotate('+h.deg+'deg)';
+    s.appendChild(chip);
+    s.onclick=()=>{ try{ localStorage.setItem(HUE_KEY, String(h.deg)); }catch(e){} hueApply(h.deg); hueRenderPicker(); };
+    host.appendChild(s);
+  }
+}
+
 $('newgame').onclick=newGame;
 $('mode').onchange=newGame;
 $('difficulty').onchange=()=>{ difficulty=$('difficulty').value; };
@@ -1170,6 +1207,7 @@ $('learnBtn').onclick=learnOpenOverlay;
 $('fLearn').onclick=learnOpenFull;
 
 learnUpdateBadge();
+hueApply(hueLoad()); hueRenderPicker();
 renderRecords();
 newGame();
 </script>
