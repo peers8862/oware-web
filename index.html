@@ -328,6 +328,69 @@
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:.001ms !important;transition-duration:.001ms !important}
   }
+
+  /* ---- learning feature ---- */
+  .badge{
+    display:none;min-width:16px;height:16px;padding:0 4px;border-radius:9px;
+    background:var(--brass-bright);color:var(--loam);
+    font:600 10px/16px "Spline Sans",sans-serif;text-align:center;vertical-align:middle;
+  }
+  .badge-dot{ position:absolute;top:-5px;right:-5px }
+  .iconbtn{ position:relative }
+
+  .learn-screen{
+    position:fixed;inset:0;z-index:40;overflow:auto;
+    background:radial-gradient(140% 120% at 50% -10%, var(--loam-2), var(--loam) 60%);
+    color:var(--ink);font-family:"Spline Sans",system-ui,sans-serif;
+  }
+  .learn-screen[hidden]{ display:none }
+  .learn-wrap{ max-width:1100px;margin:0 auto;padding:clamp(16px,3vw,32px) }
+  .learn-top{ display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 16px;margin-bottom:6px }
+  .learn-top h2{ font-family:"Fraunces",serif;font-weight:600;font-size:clamp(24px,5vw,36px);margin:0;color:var(--ink) }
+  .learn-top h2 em{ font-style:italic;color:var(--brass) }
+  .learn-prog{ font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass-dim);font-weight:600 }
+  .learn-tools{ margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap }
+  .learn-tools .seg{ display:inline-flex;border:1px solid #00000050;border-radius:9px;overflow:hidden }
+  .learn-tools .seg button{ border:0;border-radius:0;background:#2c1c0f;color:var(--ink-dim);padding:6px 10px;font:inherit;font-size:12px;cursor:pointer }
+  .learn-tools .seg button.on{ background:linear-gradient(180deg,var(--brass-bright),var(--brass));color:var(--loam);font-weight:600 }
+
+  .learn-body{ display:grid;grid-template-columns:minmax(190px,260px) 1fr;gap:clamp(14px,2.4vw,26px);margin-top:14px;align-items:start }
+  .learn-full .learn-body{ grid-template-columns:1fr } /* full mode: demo on top, set below via order */
+  @media (min-width:760px){ .learn-full .learn-body{ grid-template-columns:minmax(200px,280px) 1fr } }
+
+  .learn-list{ display:flex;flex-direction:column;gap:4px }
+  .lb{ text-align:left;border:0;background:transparent;color:var(--ink-dim);cursor:pointer;
+    font:inherit;font-size:13px;padding:9px 11px;border-radius:9px;display:flex;gap:9px;align-items:baseline;
+    border:1px solid transparent;transition:background .12s,border-color .12s,color .12s }
+  .lb:hover{ background:#ffffff08 }
+  .lb.sel{ background:#ffffff0e;border-color:#00000050;color:var(--ink) }
+  .lb .mk{ flex:0 0 auto;font-size:12px }
+  .lb.lb-unlocked .mk{ color:var(--brass) }
+  .lb.lb-locked{ color:var(--ink-faint) }
+  .lb.lb-locked .mk{ color:var(--ink-faint) }
+  .lb .grp{ display:block;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass-dim);margin:14px 0 2px 11px }
+
+  .learn-detail{ min-width:0 }
+  .learn-detail h3{ font-family:"Fraunces",serif;font-weight:600;font-size:clamp(20px,3.4vw,28px);margin:0 0 10px;color:var(--ink) }
+  .learn-hook{ font-size:clamp(15px,2.2vw,17px);line-height:1.6;color:var(--ink);margin:0 0 14px;max-width:62ch }
+  .learn-deeper{ border-top:1px solid #ffffff14;margin-top:16px;padding-top:14px }
+  .learn-deeper summary{ cursor:pointer;color:var(--brass);font-size:13px;letter-spacing:.04em;font-weight:600;list-style:none }
+  .learn-deeper summary::-webkit-details-marker{ display:none }
+  .learn-deeper summary::before{ content:"▸ ";color:var(--brass-dim) }
+  .learn-deeper[open] summary::before{ content:"▾ " }
+  .learn-deeper .body{ margin-top:10px;font-size:14px;line-height:1.65;color:var(--ink-dim);max-width:64ch }
+  .learn-deeper .body code, .learn-hook code{ font-family:"Spline Sans Mono",monospace;color:var(--brass-bright);font-size:.92em }
+  .learn-locked-note{ font-size:13px;color:var(--ink-faint);border-top:1px solid #ffffff10;margin-top:16px;padding-top:12px }
+
+  .learn-demo{ margin:0 0 16px;padding:clamp(10px,2.2vw,18px);border-radius:18px;
+    background:linear-gradient(155deg, var(--wood-hi), var(--wood) 38%, var(--wood-lo));
+    box-shadow:inset 0 1px 0 #ffffff22, inset 0 0 0 2px #00000028, 0 14px 30px -16px #000a;
+    max-width:520px }
+  .learn-full .learn-demo{ max-width:none }
+  .demo-board{ display:flex;flex-direction:column;gap:clamp(6px,1.6vw,12px) }
+  .demo-row{ display:grid;grid-template-columns:repeat(6,1fr);gap:clamp(6px,1.6vw,12px) }
+  .demo-cap{ font-size:11px;color:var(--ink-faint);margin-top:8px;text-align:center;letter-spacing:.04em }
+  .learn-close{ position:fixed;top:14px;right:14px;z-index:41 }
 </style>
 </head>
 <body>
@@ -336,8 +399,11 @@
   <button class="btn iconbtn" id="fConcede" title="Concede" aria-label="Concede">⚑</button>
   <button class="btn iconbtn" id="fRules" title="Rules" aria-label="Rules">⚙</button>
   <button class="btn iconbtn on" id="previewBtnFocus" aria-pressed="true" title="Toggle move preview" aria-label="Toggle move preview">◌</button>
+  <button class="btn iconbtn" id="fLearn" title="Learn the mathematics" aria-label="Learn">✦<span class="badge badge-dot" id="fLearnBadge"></span></button>
   <button class="btn iconbtn" id="exitFocus" title="Exit focus mode" aria-label="Exit focus mode">✕</button>
 </div>
+<div class="learn-screen" id="learnOverlay" role="dialog" aria-modal="true" aria-label="Learning" hidden></div>
+<div class="learn-screen learn-full" id="learnFull" role="dialog" aria-modal="true" aria-label="Learning, full screen" hidden></div>
 <div class="wrap">
 
   <header class="mast">
@@ -393,6 +459,7 @@
     <button class="btn" id="settingsBtn">Rules</button>
     <button class="btn on" id="previewBtn" aria-pressed="true">Preview: on</button>
     <button class="btn" id="focusBtn">Focus board</button>
+    <button class="btn" id="learnBtn">Learn <span class="badge" id="learnBadge"></span></button>
   </div>
 
   <div class="settings" id="settings">
@@ -586,14 +653,23 @@ function chooseMove(s, rules, diff){
     return pool[(Math.random()*pool.length)|0];
   }
   const depth = diff==='hard' ? 8 : 6;
-  const ordered = moves.sort((a,b)=>capCount(s,b,rules)-capCount(s,a,rules));
-  let best=-Infinity, bestMove=ordered[0], alpha=-Infinity;
-  for(const mv of ordered){
-    const v=-negamax(applyMove(s,mv,rules).state,rules,depth-1,-Infinity,-alpha);
-    if(v>best){best=v;bestMove=mv;}
-    if(best>alpha) alpha=best;
+  /* Full-window search of every root move so the scores are directly
+     comparable — root alpha-beta would return bounds, not true values. */
+  const scored = [];
+  for(const mv of moves){
+    const v = -negamax(applyMove(s,mv,rules).state, rules, depth-1, -Infinity, Infinity);
+    scored.push({mv, v});
   }
-  return bestMove;
+  let best=-Infinity; for(const x of scored) if(x.v>best) best=x.v;
+  /* Pick at random among moves within `margin` eval points of the best
+     (eval scale: 1 captured seed ≈ 100). The margin widens during the
+     opening for varied-but-sound openings, and is larger on Medium than
+     Hard so Hard stays near-optimal; after the opening Hard tie-breaks only. */
+  const opening = movesPlayed < 8;
+  const margin = diff==='hard' ? (opening ? 30 : 0)
+                               : (opening ? 80 : 30);
+  const pool = scored.filter(x => best - x.v <= margin).map(x=>x.mv);
+  return pool[(Math.random()*pool.length)|0];
 }
 
 /* ===========================================================================
@@ -601,7 +677,7 @@ function chooseMove(s, rules, diff){
    =========================================================================== */
 const $ = id => document.getElementById(id);
 const reducedMotion = ()=> window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-let state, rules, mode, difficulty, gameOver, lastLand=-1, lastFrom=-1, busy=false, previewOn=true;
+let state, rules, mode, difficulty, gameOver, lastLand=-1, lastFrom=-1, busy=false, previewOn=true, movesPlayed=0;
 const houseEls = new Array(HOUSES);   /* DOM node per house index */
 
 function readRules(){
@@ -785,7 +861,8 @@ function doMove(house, done){
   const pre = clone(state);
   const path = sowPath(pre, house);
   const r = applyMove(pre, house, rules);
-  lastLand = r.info.landing; lastFrom = house;
+  lastLand = r.info.landing; lastFrom = house; movesPlayed++;
+  learnState.totalMoves++; learnCheckUnlocks(); learnSave();
   const finalState = r.state;
   const msg = r.info.captured>0
     ? 'Captured '+r.info.captured+' seed'+(r.info.captured>1?'s':'')+(r.info.grandSlam?' — grand slam':'')+'.'
@@ -842,7 +919,7 @@ function checkEnd(){
 
 function newGame(){
   mode=$('mode').value; difficulty=$('difficulty').value; rules=readRules();
-  state=newState(); gameOver=false; lastLand=-1; lastFrom=-1; busy=false;
+  state=newState(); gameOver=false; lastLand=-1; lastFrom=-1; busy=false; movesPlayed=0;
   $('difWrap').style.opacity = mode==='cpu' ? 1 : .4;
   setStatus(mode==='cpu' ? 'Your move — pick one of your houses to sow.' : 'Player 1 to move.');
   render();
@@ -850,13 +927,213 @@ function newGame(){
 
 /* keyboard 1-6 -> current player's house */
 document.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){ document.body.classList.remove('focus'); return; }
+  if(e.key==='Escape'){ if(learnAnyOpen()){ learnCloseOverlay(); learnCloseFull(); } else document.body.classList.remove('focus'); return; }
+  if(learnAnyOpen()) return;
   if(gameOver||busy) return;
   if(e.key>='1' && e.key<='6'){
     const base = state.turn===0 ? 0 : 6;
     humanMove(base + (e.key.charCodeAt(0)-49));
   }
 });
+
+/* ===========================================================================
+   Learning module — pure-mathematics lessons, unlocked progressively by play.
+   Single delimited module: data (LEARN) + progress logic + overlay/full-screen
+   + engine-driven demo board. No engine changes.
+   =========================================================================== */
+const LEARN_KEY='zako-oware-learn';
+const LEARN_SPAN={quick:20, extended:90};
+const LEARN=[
+{ id:'history', group:'pure', order:0, title:'The oldest arithmetic',
+  hook:'Oware is one of humanity’s oldest games. Sowing seeds from cup to cup and capturing them <em>is</em> counting — arithmetic you play with your hands.',
+  deeper:'Oware belongs to the worldwide <b>mancala</b> family, played for well over a thousand years across Africa and beyond. Its mechanics — distributing and grouping counters — are a tactile form of addition, subtraction, and place value. Studying games like this is part of <i>ethnomathematics</i>: mathematics embedded in culture.',
+  demo:{ type:'static', setup:[4,4,4,4,4,4,4,4,4,4,4,4], cap:'the starting position — four seeds per house' } },
+{ id:'ring', group:'pure', order:1, title:'The board is a ring',
+  hook:'Play always moves the same way — counterclockwise around the twelve houses. The board is a <b>cycle</b>, not a line.',
+  deeper:'Because the houses form a closed loop, positions live on a ring rather than a row — the cyclic structure <code>ℤ/12</code>. “Next house” is addition that wraps around: after the last house you return to the first.',
+  demo:{ type:'play', setup:[0,4,0,0,0,0, 0,0,0,0,0,0], from:1, cap:'seeds are sown to the next houses, going around' } },
+{ id:'sowing-clock', group:'pure', order:2, title:'Sowing is clock arithmetic',
+  hook:'You drop seeds one by one into the following houses — like counting forward on a clock that skips the cup you just emptied.',
+  deeper:'Pick up <code>s</code> seeds and the last lands <code>s</code> steps forward, stepping over the emptied origin — so the reachable ring has 11 houses, not 12. Where it lands decides whether you capture.',
+  demo:{ type:'play', setup:[0,5,1,1,1,1, 3,1,1,1,1,1], from:1, cap:'five seeds — the fifth lands five steps on' } },
+{ id:'conserved', group:'pure', order:3, title:'Forty-eight seeds, always',
+  hook:'The total never changes: 48 seeds, counting the board plus both stores — forever. Seeds only ever flow <i>into</i> the stores.',
+  deeper:'The sum over all houses and both stores is an <b>invariant</b>: <code>Σ houses + store₀ + store₁ = 48</code> at every moment. Capturing is the only one-way valve — seeds leave play for a store and never return. That monotonic drain is what eventually ends the game.',
+  demo:{ type:'static', setup:[4,4,4,4,4,4,4,4,4,4,4,4], cap:'48 seeds in total — however they move' } },
+{ id:'capture', group:'pure', order:4, title:'Why 2 and 3 capture',
+  hook:'A sown seed captures only when it makes an opponent house hold exactly <b>2 or 3</b> — and the capture chains backward along their row.',
+  deeper:'Landing in an enemy house that becomes 2 or 3 takes those seeds; then you check the house before it, and before that, capturing each that also holds 2 or 3 until the chain breaks. The threshold {2,3} is a small piece of number theory baked into the rules.',
+  demo:{ type:'play', setup:[0,0,0,0,0,1, 1,0,0,0,1,0], from:5, cap:'the seed lands making 2 — captured' } },
+{ id:'lap', group:'pure', order:5, title:'Big houses lap the board',
+  hook:'A house with twelve or more seeds sows all the way around and overlaps itself — the very “fills twice” your move-preview highlights.',
+  deeper:'Once <code>s ≥ 12</code> the seeds wrap past the origin and begin a second lap, so some houses receive two. Building such a granary (a <i>kroo</i>) is a real tactic — a stored-up sweep waiting to be released.',
+  demo:{ type:'play', setup:[14,0,0,0,0,0, 0,0,0,0,0,0], from:0, cap:'fourteen seeds wrap around and overlap' } },
+{ id:'counting', group:'pure', order:6, title:'Counting every position',
+  hook:'How many ways can 48 seeds sit in 14 bins? An astronomical number — yet only about 890 billion are ever reachable.',
+  deeper:'Distributing <code>n</code> identical seeds into <code>k</code> bins is the <b>stars-and-bars</b> count <code>C(n+k−1, k−1)</code>; with n=48, k=14 that is already enormous. Far fewer are legally reachable — Oware’s reachable state space is about <code>8.9×10¹¹</code>.',
+  demo:{ type:'static', setup:[4,4,4,4,4,4,4,4,4,4,4,4], cap:'48 seeds · 14 bins (12 houses + 2 stores)' } },
+{ id:'branching', group:'pure', order:7, title:'At most six choices',
+  hook:'On your turn you have at most six moves — one per non-empty house on your side. That small fan-out keeps the game tree (barely) in reach.',
+  deeper:'The <b>branching factor</b> is ≤ 6, so looking <code>d</code> moves ahead faces on the order of <code>6ᵈ</code> lines — manageable for small d, explosive for large. It is exactly this number an opponent’s lookahead must wrestle with.',
+  demo:{ type:'static', setup:[4,4,4,4,4,4,4,4,4,4,4,4], cap:'up to six legal houses to choose from' } },
+{ id:'termination', group:'pure', order:8, title:'Why the game must end',
+  hook:'Captured seeds only ever go up, and they stop at 48 — plus a no-capture limit kills endless loops. So the game cannot run forever.',
+  deeper:'Total captured seeds is a <b>monovariant</b>: non-decreasing and bounded by 48, so it cannot rise forever. Positions could otherwise repeat endlessly, so a rule collects the seeds once many moves pass with no capture — guaranteeing termination.',
+  demo:{ type:'static', setup:[0,0,1,0,2,0, 0,3,0,1,0,0], cap:'late game — few seeds left, the end is near' } },
+{ id:'feeding', group:'pure', order:9, title:'Feeding the opponent',
+  hook:'If your opponent has no seeds, you must play a move that gives them some — if you can. Otherwise the remainder is swept up.',
+  deeper:'This <b>feeding obligation</b> constrains the legal-move set: when the opponent’s side is empty, only moves that reach across and deliver seeds are allowed. If none exist, the game ends and each player collects their own side.',
+  demo:{ type:'play', setup:[0,0,0,2,0,3, 0,0,0,0,0,0], from:5, cap:'opponent empty — you must reach across and feed' } },
+{ id:'taxonomy', group:'pure', order:10, title:'What kind of game is this?',
+  hook:'Oware is finite, deterministic, perfect-information, zero-sum, and <i>partisan</i> — and notably <b>not</b> a Nim-type game.',
+  deeper:'Both players see everything, nothing is random, and one’s gain is the other’s loss. Because the players own opposite sides (partisan) and the game is about <i>scoring</i> rather than who-moves-last, the Sprague–Grundy theory of impartial games does not apply. The start is mirror-symmetric between the two sides.',
+  demo:{ type:'static', setup:[4,4,4,4,4,4,4,4,4,4,4,4], cap:'a symmetric, perfect-information start' } },
+{ id:'solved', group:'pure', order:11, title:'Oware is solved',
+  hook:'With perfect play, Oware is a draw — and the exact value of <i>every</i> position is known, computed by working backward from the end.',
+  deeper:'In 2002 the game was <b>solved</b> by retrograde analysis: starting from finished positions and stepping backward, the win/draw/loss value of all ~889 billion positions was computed and stored. Perfect play by both sides yields a 24–24 draw — a <i>strong</i> solution, optimal everywhere.',
+  demo:{ type:'static', setup:[4,4,4,4,4,4,4,4,4,4,4,4], cap:'every position’s value is known — a draw with best play' } },
+{ id:'complexity', group:'pure', order:12, title:'When the math gets hard',
+  hook:'This 2×6 game is solvable — but the general mancala family becomes computationally intractable as the board grows.',
+  deeper:'Fix the board and Oware is finite and solvable. Let the board grow without bound and the natural decision problems for generalized mancala-type games climb the complexity hierarchy (hard in the sense of <code>NP</code>/<code>PSPACE</code>). Small here is a gift; the family is hard in general.',
+  demo:{ type:'static', setup:[4,4,4,4,4,4,4,4,4,4,4,4], cap:'one fixed board is easy; the infinite family is hard' } }
+];
+const LEARN_N=LEARN.length;
+
+function learnLoad(){
+  const d={totalMoves:0, pace:'extended', unlockedCount:2, seenIds:[]};
+  try{ const s=JSON.parse(localStorage.getItem(LEARN_KEY)); if(s&&typeof s==='object') return Object.assign(d,s); }catch(e){}
+  return d;
+}
+let learnState=learnLoad();
+let learnSelId=null, learnDemoGen=0;
+function learnSave(){ try{ localStorage.setItem(LEARN_KEY, JSON.stringify(learnState)); }catch(e){} }
+function learnThreshold(order){ if(order<=1) return 0; const span=LEARN_SPAN[learnState.pace]||90; return Math.round((order-1)*span/(LEARN_N-1)); }
+function learnComputeUnlocked(){ let c=0; for(const b of LEARN) if(learnThreshold(b.order)<=learnState.totalMoves) c++; return c; }
+function learnIsUnlocked(b){ return b.order < learnState.unlockedCount; }
+function learnCheckUnlocks(){ const c=learnComputeUnlocked(); if(c>learnState.unlockedCount){ learnState.unlockedCount=c; learnSave(); } learnUpdateBadge(); }
+function learnBadgeCount(){ let n=0; for(const b of LEARN) if(b.order<learnState.unlockedCount && learnState.seenIds.indexOf(b.id)<0) n++; return n; }
+function learnUpdateBadge(){
+  const n=learnBadgeCount();
+  for(const id of ['learnBadge','fLearnBadge']){ const el=$(id); if(!el) continue; el.textContent=n>0?String(n):''; el.style.display=n>0?'inline-flex':'none'; }
+}
+function learnMarkSeen(){ let ch=false; for(const b of LEARN) if(b.order<learnState.unlockedCount && learnState.seenIds.indexOf(b.id)<0){ learnState.seenIds.push(b.id); ch=true; } if(ch) learnSave(); learnUpdateBadge(); }
+function learnSetPace(p){ learnState.pace=p; const c=learnComputeUnlocked(); if(c>learnState.unlockedCount) learnState.unlockedCount=c; learnSave(); learnUpdateBadge(); }
+function learnReset(){ learnState.totalMoves=0; learnState.unlockedCount=2; learnState.seenIds=[]; learnSave(); learnUpdateBadge(); }
+
+/* ---- demo board: reuses fillCup + the real sowing rules ---- */
+function learnDemoRules(){ return { capture:'23', grandslam:'nocap', endMode:'firstto', target:25, cycleLimit:100 }; }
+function learnDrawBoard(cells, board){ for(let i=0;i<HOUSES;i++) fillCup(cells[i], board[i], false); }
+function learnRenderDemo(host, block){
+  const gen=++learnDemoGen;
+  host.innerHTML='';
+  const wrap=document.createElement('div'); wrap.className='learn-demo';
+  const board=document.createElement('div'); board.className='demo-board';
+  const top=document.createElement('div'); top.className='demo-row';
+  const bot=document.createElement('div'); bot.className='demo-row';
+  const cells=new Array(HOUSES);
+  for(let i=11;i>=6;i--){ const c=document.createElement('div'); c.className='house'; top.appendChild(c); cells[i]=c; }
+  for(let i=0;i<6;i++){ const c=document.createElement('div'); c.className='house'; bot.appendChild(c); cells[i]=c; }
+  board.appendChild(top); board.appendChild(bot); wrap.appendChild(board);
+  const setup=(block.demo&&block.demo.setup)?block.demo.setup.slice():[4,4,4,4,4,4,4,4,4,4,4,4];
+  learnDrawBoard(cells, setup);
+  if(block.demo&&block.demo.cap){ const cap=document.createElement('div'); cap.className='demo-cap'; cap.textContent=block.demo.cap; wrap.appendChild(cap); }
+  host.appendChild(wrap);
+  if(block.demo&&block.demo.type==='play'){
+    if(reducedMotion()){
+      const btn=document.createElement('button'); btn.className='btn'; btn.style.marginTop='8px'; btn.textContent='▸ Play';
+      btn.onclick=()=>learnPlayOnce(gen, cells, setup, block.demo.from, null);
+      wrap.appendChild(btn);
+    } else learnPlayLoop(gen, cells, setup, block.demo.from);
+  }
+}
+function learnPlayOnce(gen, cells, setup, from, done){
+  if(gen!==learnDemoGen) return;
+  const pre={ h:setup.slice(), score:[0,0], turn: from<SIDE?0:1, ncp:0 };
+  const path=sowPath(pre, from);
+  const fin=applyMove(pre, from, learnDemoRules()).state;
+  const b=setup.slice(); b[from]=0; learnDrawBoard(cells, b);
+  let k=0;
+  const step=()=>{
+    if(gen!==learnDemoGen) return;
+    if(k<path.length){ b[path[k]]++; fillCup(cells[path[k]], b[path[k]], true); k++; setTimeout(step, path.length>14?34:70); }
+    else setTimeout(()=>{ if(gen!==learnDemoGen) return; for(let i=0;i<HOUSES;i++) fillCup(cells[i], fin.h[i], false); if(done) done(); }, 380);
+  };
+  setTimeout(step, 140);
+}
+function learnPlayLoop(gen, cells, setup, from){
+  const cycle=()=>{
+    if(gen!==learnDemoGen) return;
+    learnPlayOnce(gen, cells, setup, from, ()=>{
+      setTimeout(()=>{ if(gen!==learnDemoGen) return; learnDrawBoard(cells, setup); setTimeout(cycle, 700); }, 1300);
+    });
+  };
+  cycle();
+}
+
+/* ---- library render (shared by overlay + full-screen) ---- */
+function learnRenderLibrary(host, full){
+  host.innerHTML='';
+  const wrap=document.createElement('div'); wrap.className='learn-wrap';
+  const top=document.createElement('div'); top.className='learn-top';
+  const h2=document.createElement('h2'); h2.innerHTML='Awar<em>é</em> · mathematics';
+  const prog=document.createElement('span'); prog.className='learn-prog'; prog.textContent=Math.min(learnState.unlockedCount,LEARN_N)+' / '+LEARN_N+' unlocked';
+  top.appendChild(h2); top.appendChild(prog);
+  const tools=document.createElement('div'); tools.className='learn-tools';
+  tools.appendChild(document.createTextNode('Pace'));
+  const seg=document.createElement('div'); seg.className='seg';
+  for(const p of ['quick','extended']){ const b=document.createElement('button'); b.textContent=p==='quick'?'Quick':'Extended'; if(learnState.pace===p) b.classList.add('on'); b.onclick=()=>{ learnSetPace(p); learnRenderLibrary(host, full); }; seg.appendChild(b); }
+  tools.appendChild(seg);
+  const reset=document.createElement('button'); reset.className='btn'; reset.textContent='Reset progress';
+  reset.onclick=()=>{ if(confirm('Reset your learning progress?')){ learnReset(); learnSelId=null; learnRenderLibrary(host, full); } };
+  tools.appendChild(reset);
+  if(!full){ const fb=document.createElement('button'); fb.className='btn btn--primary'; fb.textContent='Full screen'; fb.onclick=()=>{ learnCloseOverlay(); learnOpenFull(); }; tools.appendChild(fb); }
+  top.appendChild(tools);
+  wrap.appendChild(top);
+
+  const body=document.createElement('div'); body.className='learn-body';
+  const list=document.createElement('div'); list.className='learn-list';
+  for(const b of LEARN){
+    const item=document.createElement('button');
+    item.className='lb '+(learnIsUnlocked(b)?'lb-unlocked':'lb-locked')+(learnSelId===b.id?' sel':'');
+    item.innerHTML='<span class="mk">'+(learnIsUnlocked(b)?'✓':'🔒')+'</span><span>'+b.title+'</span>';
+    item.onclick=()=>{ learnSelId=b.id; learnRenderLibrary(host, full); };
+    list.appendChild(item);
+  }
+  const detail=document.createElement('div'); detail.className='learn-detail';
+  body.appendChild(list); body.appendChild(detail);
+  wrap.appendChild(body);
+
+  const close=document.createElement('button'); close.className='btn learn-close'; close.textContent='✕ Close';
+  close.onclick=()=> full?learnCloseFull():learnCloseOverlay();
+  wrap.appendChild(close);
+  host.appendChild(wrap);
+
+  if(!learnSelId) learnSelId=LEARN[0].id;
+  learnRenderDetail(detail);
+}
+function learnRenderDetail(detail){
+  const b=LEARN.find(x=>x.id===learnSelId)||LEARN[0];
+  const unlocked=learnIsUnlocked(b);
+  detail.innerHTML='';
+  const h=document.createElement('h3'); h.textContent=b.title; detail.appendChild(h);
+  const demoHost=document.createElement('div'); detail.appendChild(demoHost);
+  const hook=document.createElement('p'); hook.className='learn-hook'; hook.innerHTML=b.hook; detail.appendChild(hook);
+  if(unlocked){
+    learnRenderDemo(demoHost, b);
+    if(b.deeper){ const d=document.createElement('details'); d.className='learn-deeper'; d.innerHTML='<summary>go deeper</summary><div class="body">'+b.deeper+'</div>'; detail.appendChild(d); }
+  } else {
+    learnRenderDemo(demoHost, { demo:{ type:'static', setup:b.demo&&b.demo.setup } });
+    const need=Math.max(1, learnThreshold(b.order)-learnState.totalMoves);
+    const note=document.createElement('div'); note.className='learn-locked-note';
+    note.textContent='🔒 Play about '+need+' more move'+(need===1?'':'s')+' to unlock the demo and the deeper explanation.';
+    detail.appendChild(note);
+  }
+}
+function learnOpenOverlay(){ learnMarkSeen(); $('learnOverlay').hidden=false; document.body.style.overflow='hidden'; learnRenderLibrary($('learnOverlay'), false); }
+function learnCloseOverlay(){ learnDemoGen++; const o=$('learnOverlay'); o.hidden=true; o.innerHTML=''; document.body.style.overflow=''; }
+function learnOpenFull(){ learnMarkSeen(); $('learnFull').hidden=false; document.body.style.overflow='hidden'; learnRenderLibrary($('learnFull'), true); }
+function learnCloseFull(){ learnDemoGen++; const o=$('learnFull'); o.hidden=true; o.innerHTML=''; document.body.style.overflow=''; }
+function learnAnyOpen(){ return !$('learnOverlay').hidden || !$('learnFull').hidden; }
 
 function toggleSettings(){ $('settings').classList.toggle('open'); }
 function concede(){
@@ -889,7 +1166,10 @@ $('fNew').onclick=newGame;
 $('fConcede').onclick=concede;
 $('fRules').onclick=toggleSettings;
 $('resetRecords').onclick=()=>{ saveRecords({}); renderRecords(); };
+$('learnBtn').onclick=learnOpenOverlay;
+$('fLearn').onclick=learnOpenFull;
 
+learnUpdateBadge();
 renderRecords();
 newGame();
 </script>
