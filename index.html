@@ -3,65 +3,382 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Oware — ZAKO (browser fork)</title>
+<title>Awaré — Oware</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Spline+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --amber:#f0b000; --amber-dim:#7a6a30; --amber-faint:#3a3a2a;
-    --bg:#000; --panel:#0d0d0d; --line:#4a3f18; --good:#9ad26a; --bad:#e07a5a;
+    --loam:#1b120c; --loam-2:#241710;
+    --wood:#6e4626; --wood-hi:#8a5c34; --wood-lo:#4a2f18;
+    --recess:#3a2415; --recess-lo:#2a190e;
+    --brass:#c89b3c; --brass-bright:#ecc96a; --brass-dim:#8a6e30;
+    --seed:#dccaa8; --seed-lo:#a78a5e;
+    --oware-red:#c2603e;
+    --ink:#ecdab4; --ink-dim:#b39a6c; --ink-faint:#7d6843;
+    --good:#cdb04e; --bad:#b4523a;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;background:#070707;color:var(--amber);
-    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-  .wrap{max-width:760px;margin:0 auto;padding:18px 16px 48px}
-  h1{font-size:20px;letter-spacing:.18em;margin:0 0 2px}
-  .sub{color:var(--amber-dim);font-size:12px;margin:0 0 16px}
-  .note{color:#666;font-size:11px}
+  html,body{margin:0}
+  body{
+    background:
+      radial-gradient(140% 120% at 50% -10%, var(--loam-2), var(--loam) 60%);
+    color:var(--ink);
+    font-family:"Spline Sans",system-ui,sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:680px;margin:0 auto;padding:40px 18px 56px}
 
-  .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
-  select,button{font:inherit;color:var(--amber);background:#111;border:1px solid var(--line);
-    border-radius:6px;padding:6px 10px;cursor:pointer}
-  button:hover,select:hover{border-color:var(--amber)}
-  button:disabled{opacity:.4;cursor:default}
-  label{font-size:12px;color:var(--amber-dim);display:flex;gap:6px;align-items:center}
+  /* ---- masthead ---- */
+  .mast{text-align:center;margin-bottom:26px}
+  .wordmark{
+    font-family:"Fraunces",serif;
+    font-optical-sizing:auto;
+    font-weight:600;
+    font-size:clamp(40px,11vw,62px);
+    line-height:.9;
+    letter-spacing:.005em;
+    margin:0;
+    color:var(--ink);
+    text-shadow:0 1px 0 #00000060;
+  }
+  .wordmark em{font-style:italic;color:var(--brass)}
+  .tagline{
+    margin:.55rem 0 0;
+    font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--ink-dim);font-weight:500;
+  }
 
-  /* the "device screen": minimal, high-contrast, no gradients/animation */
-  .screen{background:var(--bg);border:1px solid #222;border-radius:8px;padding:18px 16px;margin:0 auto;max-width:420px}
-  .who{display:flex;justify-content:space-between;font-size:11px;color:var(--amber-dim);margin-bottom:8px}
-  .who .active{color:var(--amber)}
-  .row{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
-  .cell{aspect-ratio:1/1;border:1px solid var(--line);border-radius:6px;background:transparent;
-    color:var(--amber);font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;
-    padding:0;transition:border-color .1s,background .1s}
-  .cell.playable{cursor:pointer;border-color:var(--amber-dim)}
-  .cell.playable:hover{background:#1b1505;border-color:var(--amber)}
-  .cell.dead{color:var(--amber-faint);border-color:#222;cursor:default}
-  .cell.lastland{box-shadow:0 0 0 1px var(--amber) inset}
-  .keys{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:6px}
-  .keys div{text-align:center;font-size:10px;color:var(--amber-dim)}
-  .mid{display:flex;justify-content:space-between;align-items:center;margin:12px 2px;font-size:13px;color:#cda23a}
-  .score b{color:var(--amber)}
-  .status{min-height:20px;text-align:center;font-size:13px;margin-top:6px;color:var(--amber)}
-  .status.win{color:var(--good)} .status.lose{color:var(--bad)}
+  /* ---- board ---- */
+  .board{
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    align-items:stretch;
+    gap:clamp(8px,2.4vw,16px);
+    padding:clamp(14px,3.6vw,22px);
+    border-radius:26px;
+    background:
+      linear-gradient(155deg, var(--wood-hi), var(--wood) 38%, var(--wood-lo));
+    box-shadow:
+      inset 0 1px 0 #ffffff22,
+      inset 0 0 0 2px #00000028,
+      0 1px 0 1px #00000040,
+      0 26px 50px -20px #000000aa,
+      0 4px 14px -6px #00000080;
+    position:relative;
+  }
+  /* brass inlay line just inside the rim */
+  .board::after{
+    content:"";position:absolute;inset:7px;border-radius:20px;
+    border:1px solid #00000033;
+    box-shadow:inset 0 0 0 1px var(--brass-dim);
+    opacity:.5;pointer-events:none;
+  }
 
-  .panel{border:1px solid #222;border-radius:8px;padding:12px 14px;margin-top:18px;background:var(--panel)}
-  .panel h2{font-size:12px;letter-spacing:.14em;color:var(--amber-dim);margin:0 0 10px;text-transform:uppercase}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  td,th{text-align:left;padding:3px 6px;border-bottom:1px solid #161616}
-  th{color:var(--amber-dim);font-weight:400}
-  .settings{display:none;gap:14px;flex-wrap:wrap;margin-top:10px}
-  .settings.open{display:flex}
+  .ranks{display:flex;flex-direction:column;gap:clamp(8px,2.2vw,14px);justify-content:center}
+  .rank{
+    display:grid;grid-template-columns:repeat(6,1fr);
+    gap:clamp(7px,2vw,13px);
+  }
+  .axis{
+    height:0;border-top:1px solid #00000055;
+    box-shadow:0 1px 0 #ffffff14;
+    margin:1px clamp(2px,2vw,10px);
+    position:relative;
+  }
+  .axis::before{
+    content:"";position:absolute;left:50%;top:50%;
+    width:7px;height:7px;border-radius:50%;
+    transform:translate(-50%,-50%);
+    background:radial-gradient(circle at 40% 35%, var(--brass-bright), var(--brass-dim));
+    box-shadow:0 0 0 1px #00000040, inset 0 1px 1px #ffffff66;
+    opacity:.7;
+  }
+
+  /* ---- edge number labels (keyboard hints, also clickable) ---- */
+  .keys{
+    display:grid;grid-template-columns:repeat(6,1fr);
+    gap:clamp(7px,2vw,13px);padding:0 1px;
+  }
+  .keys span{
+    display:flex;align-items:center;justify-content:center;
+    height:17px;border-radius:6px;
+    font-family:"Spline Sans Mono",ui-monospace,monospace;font-size:11px;line-height:1;
+    color:var(--ink-faint);user-select:none;
+    transition:color .12s, background .12s;
+  }
+  .keys.active span{ color:var(--brass-dim) }
+  .keys span.live{ color:var(--brass);cursor:pointer }
+  .keys span.live:hover{ color:var(--brass-bright);background:#ffffff12 }
+
+  /* ---- houses (cups) ---- */
+  .house{
+    aspect-ratio:1/1;width:100%;min-width:0;min-height:0;overflow:hidden;
+    container-type:size;            /* size pips & numerals relative to the cup */
+    border:0;padding:6px;margin:0;
+    border-radius:50%;
+    background:
+      radial-gradient(80% 80% at 38% 30%, var(--recess) 0%, var(--recess-lo) 78%);
+    --pv-inner:inset 0 0 0 0 #0000; --pv-ring:0 0 0 0 #0000; --pv-glow:0 0 0 0 #0000;
+    box-shadow:
+      var(--pv-inner),
+      inset 0 6px 12px -4px #000000d0,
+      inset 0 -2px 3px #ffffff12,
+      inset 0 0 0 1px #00000040,
+      var(--pv-ring),
+      var(--pv-glow);
+    display:flex;align-items:center;justify-content:center;
+    cursor:default;
+    transition:box-shadow .14s ease, transform .08s ease;
+    position:relative;
+    color:var(--brass-bright);
+    font-family:"Fraunces",serif;font-weight:600;
+  }
+  /* legal cups: faint rim at rest, full glow only on hover / keyboard focus */
+  .house.playable{ cursor:pointer; --pv-ring:0 0 0 1px var(--brass-dim) }
+  .house.playable:hover{ transform:translateY(-1px); --pv-ring:0 0 0 2px var(--brass); --pv-glow:0 0 14px -2px var(--brass) }
+  .house.playable:focus-visible{
+    outline:none;
+    --pv-ring:0 0 0 3px var(--brass-bright); --pv-glow:0 0 18px -2px var(--brass-bright);
+  }
+  /* last move (same marker for both players): the cup it was played from + where it landed */
+  .house.lastmv{ --pv-inner: inset 0 0 0 2px var(--brass) }
+
+  /* hover fill-preview (toggleable): pv1 = first pass, pv2 = lapped (heavier/darker),
+     pvland = where the last seed lands, pvsrc = the cup you're aiming from */
+  .house.pv1{ --pv-ring:0 0 0 2px var(--brass); --pv-glow:0 0 12px -3px var(--brass) }
+  .house.pv2{ --pv-ring:0 0 0 4px #9a7528; --pv-glow:0 0 22px -2px #8a5f1e; --pv-inner:inset 0 0 30px -2px #000000b0 }
+  .house.pvland{ --pv-inner: inset 0 0 0 3px var(--brass-bright) }
+  .house.pvsrc{ --pv-inner: inset 0 0 0 3px #f4e8c8 }
+  .house.capturing{ animation:capflash .42s ease both }
+  @keyframes capflash{
+    0%{ box-shadow:inset 0 6px 12px -4px #000000d0, 0 0 0 2px var(--oware-red), 0 0 18px -2px var(--oware-red) }
+    100%{ box-shadow:inset 0 6px 12px -4px #000000d0 }
+  }
+
+  .pips{
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+    gap:4cqmin;max-width:70cqmin;max-height:70cqmin;   /* heap within the inscribed square */
+  }
+  .pips.few{ gap:5cqmin }
+  .pips.many{ gap:3cqmin }
+  .pip{
+    width:max(5px,17cqmin);height:max(5px,17cqmin);    /* mid: 5–9 seeds */
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--seed), var(--seed-lo) 85%);
+    box-shadow:0 1px 1px #00000080, inset 0 1px 1px #ffffff80;
+    flex:0 0 auto;
+  }
+  .pips.few .pip{ width:max(6px,22cqmin);height:max(6px,22cqmin) }   /* 1–4 seeds: bold */
+  .pips.many .pip{ width:max(4px,13cqmin);height:max(4px,13cqmin) }  /* 10–15 seeds: pack */
+  .pip.drop{ animation:drop .22s cubic-bezier(.2,.9,.3,1.4) both }
+  @keyframes drop{
+    0%{ transform:translateY(-60%) scale(.4); opacity:0 }
+    70%{ opacity:1 }
+    100%{ transform:translateY(0) scale(1); opacity:1 }
+  }
+  .count{ font-size:max(13px,34cqmin); line-height:1; letter-spacing:-.02em; color:var(--brass-bright) }
+  .socket{ width:max(4px,11cqmin);height:max(4px,11cqmin);border-radius:50%;background:#00000055;box-shadow:inset 0 1px 1px #00000080 }
+
+  /* ---- stores (capture pots) ---- */
+  .store{
+    width:clamp(52px,15vw,74px);
+    border-radius:46px;
+    background:
+      radial-gradient(120% 60% at 50% 18%, var(--recess) 0%, var(--recess-lo) 80%);
+    box-shadow:
+      inset 0 10px 20px -6px #000000d8,
+      inset 0 -3px 4px #ffffff10,
+      inset 0 0 0 1px #00000050;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:4px;padding:14px 6px;
+    position:relative;
+  }
+  .store .num{
+    font-family:"Fraunces",serif;font-weight:700;font-size:clamp(26px,7vw,34px);
+    color:var(--brass-bright);line-height:1;
+    text-shadow:0 1px 2px #00000080;
+    transition:transform .2s ease;
+  }
+  .store.gain .num{ animation:gain .34s ease }
+  @keyframes gain{ 0%{transform:scale(1)} 45%{transform:scale(1.28);color:#fff} 100%{transform:scale(1)} }
+  .store .who{
+    font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink-faint);font-weight:600;text-align:center;
+  }
+  .store.turn{ box-shadow:inset 0 10px 20px -6px #000000d8, 0 0 0 2px var(--brass), 0 0 14px -3px var(--brass) }
+  .store.turn .who{ color:var(--brass) }
+
+  /* ---- status ---- */
+  .status{
+    text-align:center;min-height:1.4em;margin:18px 4px 4px;
+    font-size:15px;color:var(--ink);
+  }
+  .status.cap{ color:var(--brass-bright) }
+  .status.warn{ color:var(--oware-red) }
+  .status.win{ color:var(--good);font-weight:600 }
+  .status.lose{ color:var(--bad);font-weight:600 }
+
+  /* ---- preview legend ---- */
+  .legend{
+    display:none;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 14px;
+    margin:12px auto 0;max-width:580px;
+    font-size:11px;letter-spacing:.03em;color:var(--ink-dim);
+  }
+  .legend.show{ display:flex }
+  .lg-title{ color:var(--brass-dim);text-transform:uppercase;letter-spacing:.16em;font-weight:600 }
+  .lg-item{ display:inline-flex;align-items:center;gap:7px }
+  .sw{ width:17px;height:17px;border-radius:50%;flex:0 0 auto;
+    background:radial-gradient(80% 80% at 38% 30%, var(--recess), var(--recess-lo) 78%) }
+  .sw-src{ box-shadow:inset 0 0 0 2px #f4e8c8 }
+  .sw-1{ box-shadow:0 0 0 2px var(--brass), 0 0 7px -1px var(--brass) }
+  .sw-2{ box-shadow:0 0 0 3px #9a7528, inset 0 0 9px -1px #000000b0 }
+  .sw-land{ box-shadow:inset 0 0 0 2px var(--brass-bright) }
+  .sw-last{ box-shadow:inset 0 0 0 2px var(--brass) }
+  body.focus .legend{
+    position:fixed;left:14px;bottom:14px;z-index:20;margin:0;
+    max-width:48vw;justify-content:flex-start;
+    background:#241710e8;padding:9px 13px;border-radius:11px;border:1px solid #00000050;
+  }
+
+  /* ---- controls ---- */
+  .controls{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;
+    margin-top:14px;
+  }
+  label{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12px;letter-spacing:.04em;color:var(--ink-dim);
+  }
+  select,.btn{
+    font:inherit;font-size:13px;color:var(--ink);
+    background:linear-gradient(180deg,#3a2615,#2c1c0f);
+    border:1px solid #00000050;border-radius:9px;padding:7px 12px;cursor:pointer;
+    box-shadow:inset 0 1px 0 #ffffff14, 0 1px 2px #00000050;
+    transition:border-color .12s, color .12s;
+  }
+  select:hover,.btn:hover{ border-color:var(--brass);color:var(--brass-bright) }
+  .btn:focus-visible,select:focus-visible{ outline:2px solid var(--brass-bright);outline-offset:2px }
+  .btn--primary{ color:var(--loam);background:linear-gradient(180deg,var(--brass-bright),var(--brass));border-color:#00000040;font-weight:600 }
+  .btn--primary:hover{ color:var(--loam) }
+  .btn:disabled{ opacity:.4;cursor:default }
+
+  .settings{
+    display:none;flex-wrap:wrap;gap:14px;justify-content:center;
+    margin:14px auto 0;max-width:520px;
+    padding:12px 14px;border-radius:12px;
+    background:#00000028;border:1px solid #00000040;
+  }
+  .settings.open{ display:flex }
+
+  /* ---- records plaque ---- */
+  .plaque{
+    margin:26px auto 0;max-width:420px;
+    border-radius:14px;padding:14px 16px;
+    background:linear-gradient(160deg,#2a1b10,#1f140b);
+    border:1px solid #00000050;
+    box-shadow:inset 0 1px 0 #ffffff10, 0 1px 2px #00000050;
+  }
+  .plaque h2{
+    font-family:"Spline Sans",sans-serif;font-size:11px;font-weight:600;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--brass-dim);
+    margin:0 0 10px;
+  }
+  table{ width:100%;border-collapse:collapse;font-family:"Spline Sans Mono",ui-monospace,monospace;font-size:13px }
+  th,td{ text-align:right;padding:4px 8px;border-bottom:1px solid #ffffff0d }
+  th:first-child,td:first-child{ text-align:left;color:var(--ink-dim) }
+  th{ color:var(--ink-faint);font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase }
+  td{ color:var(--ink) }
+  .plaque .foot{ margin-top:10px;text-align:right }
+
+  .colophon{
+    margin:22px auto 0;max-width:480px;text-align:center;
+    font-family:"Spline Sans Mono",monospace;font-size:11px;line-height:1.6;
+    color:var(--ink-faint);
+  }
+  .colophon code{ color:var(--ink-dim) }
+
+  /* ---- focus mode: just the board, full browser width ---- */
+  .focusbar{ position:fixed;top:14px;right:14px;z-index:20;display:none;gap:8px }
+  body.focus .focusbar{ display:flex }
+  .btn.on{ border-color:var(--brass);color:var(--brass-bright) }
+  .iconbtn{ width:40px;height:40px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1 }
+  body.focus .settings.open{
+    display:flex;position:fixed;top:64px;right:14px;left:auto;z-index:19;
+    max-width:min(92vw,540px);background:#241710f5;border-color:#00000060;
+  }
+  body.focus .mast,
+  body.focus .status,
+  body.focus .controls,
+  body.focus .settings,
+  body.focus .plaque,
+  body.focus .colophon{ display:none }
+  body.focus .wrap{
+    max-width:none;min-height:100vh;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:clamp(10px,2.4vw,28px);
+  }
+  body.focus .board{ max-width:none;width:100% }
+
+  @media (max-width:430px){
+    .wrap{padding:28px 12px 44px}
+    .tagline{letter-spacing:.14em}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+  }
 </style>
 </head>
 <body>
+<div class="focusbar">
+  <button class="btn iconbtn" id="fNew" title="New game" aria-label="New game">↻</button>
+  <button class="btn iconbtn" id="fConcede" title="Concede" aria-label="Concede">⚑</button>
+  <button class="btn iconbtn" id="fRules" title="Rules" aria-label="Rules">⚙</button>
+  <button class="btn iconbtn on" id="previewBtnFocus" aria-pressed="true" title="Toggle move preview" aria-label="Toggle move preview">◌</button>
+  <button class="btn iconbtn" id="exitFocus" title="Exit focus mode" aria-label="Exit focus mode">✕</button>
+</div>
 <div class="wrap">
-  <h1>OWARE</h1>
-  <p class="sub">ZAKO browser fork · numeric board · play in a tab — standalone experiment</p>
+
+  <header class="mast">
+    <h1 class="wordmark">Awar<em>é</em></h1>
+    <p class="tagline">Oware · the sowing game</p>
+  </header>
+
+  <div class="board" role="group" aria-label="Oware board">
+    <div class="store" id="storeLeft">
+      <span class="num" id="scoreTop">0</span>
+      <span class="who" id="whoTop">Opponent</span>
+    </div>
+    <div class="ranks">
+      <div class="keys" id="keysTop" aria-hidden="true"></div>
+      <div class="rank" id="rowTop" aria-label="opponent houses"></div>
+      <div class="axis" aria-hidden="true"></div>
+      <div class="rank" id="rowBot" aria-label="your houses"></div>
+      <div class="keys" id="keysBot" aria-hidden="true"></div>
+    </div>
+    <div class="store" id="storeRight">
+      <span class="num" id="scoreBot">0</span>
+      <span class="who" id="whoBot">You</span>
+    </div>
+  </div>
+
+  <p class="status" id="status">Your move — pick one of your houses to sow.</p>
+
+  <div class="legend show" id="legend" aria-hidden="true">
+    <span class="lg-title">Key</span>
+    <span class="lg-item"><i class="sw sw-src"></i>aim from</span>
+    <span class="lg-item"><i class="sw sw-1"></i>fills once</span>
+    <span class="lg-item"><i class="sw sw-2"></i>fills twice</span>
+    <span class="lg-item"><i class="sw sw-land"></i>lands here</span>
+    <span class="lg-item"><i class="sw sw-last"></i>last move</span>
+  </div>
 
   <div class="controls">
     <label>Mode
       <select id="mode">
         <option value="cpu">vs Computer</option>
-        <option value="2p">2 Player (local)</option>
+        <option value="2p">2 players</option>
       </select>
     </label>
     <label id="difWrap">Level
@@ -71,15 +388,17 @@
         <option value="hard">Hard</option>
       </select>
     </label>
-    <button id="newgame">New Game</button>
-    <button id="concede">Concede</button>
-    <button id="settingsBtn">Settings</button>
+    <button class="btn btn--primary" id="newgame">New game</button>
+    <button class="btn" id="concede">Concede</button>
+    <button class="btn" id="settingsBtn">Rules</button>
+    <button class="btn on" id="previewBtn" aria-pressed="true">Preview: on</button>
+    <button class="btn" id="focusBtn">Focus board</button>
   </div>
 
   <div class="settings" id="settings">
     <label>Grand slam
       <select id="gsRule">
-        <option value="nocap" selected>No capture (intl)</option>
+        <option value="nocap" selected>No capture</option>
         <option value="forbid">Forbidden</option>
         <option value="oppkeeps">Opponent keeps</option>
         <option value="leavelast">Leave last</option>
@@ -99,32 +418,21 @@
     </label>
   </div>
 
-  <div class="screen">
-    <div class="who"><span id="whoTop">Computer</span><span id="whoBot" class="active">You ▸</span></div>
-    <div class="row" id="rowTop"></div>
-    <div class="mid">
-      <span class="score">Top <b id="scoreTop">0</b></span>
-      <span class="note" id="turnNote">your move</span>
-      <span class="score">Bot <b id="scoreBot">0</b></span>
-    </div>
-    <div class="row" id="rowBot"></div>
-    <div class="keys"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div></div>
-    <div class="status" id="status">Pick a house (1–6) to sow.</div>
-  </div>
-
-  <div class="panel">
-    <h2>Records (this browser)</h2>
+  <section class="plaque">
+    <h2>Records · this browser</h2>
     <table>
-      <tr><th>vs Computer</th><th>W</th><th>L</th><th>D</th></tr>
+      <tr><th>vs Computer</th><th>Won</th><th>Lost</th><th>Drawn</th></tr>
       <tr><td>Easy</td><td id="r-easy-w">0</td><td id="r-easy-l">0</td><td id="r-easy-d">0</td></tr>
       <tr><td>Medium</td><td id="r-medium-w">0</td><td id="r-medium-l">0</td><td id="r-medium-d">0</td></tr>
       <tr><td>Hard</td><td id="r-hard-w">0</td><td id="r-hard-l">0</td><td id="r-hard-d">0</td></tr>
     </table>
-    <div style="margin-top:10px"><button id="resetRecords">Reset records</button></div>
-  </div>
+    <div class="foot"><button class="btn" id="resetRecords">Reset records</button></div>
+  </section>
 
-  <p class="note" style="margin-top:18px">Self-contained, offline, no dependencies. The real ZAKO build is the native-C
-  game in <code>mobileos</code>; this is a throwaway browser fork.</p>
+  <p class="colophon">
+    Self-contained, offline, no dependencies. The rules engine is a pure-JS port of
+    the verified native build in <code>mobileos</code>; the AI mirrors its negamax eval.
+  </p>
 </div>
 
 <script>
@@ -289,10 +597,12 @@ function chooseMove(s, rules, diff){
 }
 
 /* ===========================================================================
-   UI controller
+   UI controller — physical board: seeds as pips, counterclockwise sowing.
    =========================================================================== */
 const $ = id => document.getElementById(id);
-let state, rules, mode, difficulty, gameOver, lastLand=-1, busy=false;
+const reducedMotion = ()=> window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let state, rules, mode, difficulty, gameOver, lastLand=-1, lastFrom=-1, busy=false, previewOn=true;
+const houseEls = new Array(HOUSES);   /* DOM node per house index */
 
 function readRules(){
   return {
@@ -323,61 +633,193 @@ function recordCpu(level, humanOutcome){
   r[level]=rec; saveRecords(r); renderRecords();
 }
 
-function cellNode(idx, interactive){
+/* ---- seed rendering: pips for small counts (capture range stays readable),
+        numeral once a cup is too full to count at a glance ---- */
+function fillCup(node, count, dropLastPip){
+  node.innerHTML='';
+  if(count===0){ const s=document.createElement('span'); s.className='socket'; node.appendChild(s); return; }
+  if(count>15){
+    const c=document.createElement('span'); c.className='count'; c.textContent=count; node.appendChild(c); return;
+  }
+  const wrap=document.createElement('span');
+  wrap.className='pips '+(count<=4?'few':count<=9?'mid':'many');
+  for(let k=0;k<count;k++){
+    const p=document.createElement('i'); p.className='pip';
+    if(dropLastPip && k===count-1) p.classList.add('drop');
+    wrap.appendChild(p);
+  }
+  node.appendChild(wrap);
+}
+
+function buildHouse(idx, interactive){
   const b=document.createElement('button');
-  b.className='cell'+(idx===lastLand?' lastland':'');
-  b.textContent=state.h[idx];
-  if(state.h[idx]===0) b.classList.add('dead');
-  if(interactive && state.h[idx]>0 && !gameOver && !busy) {
+  b.type='button';
+  b.className='house'+((idx===lastLand||idx===lastFrom)?' lastmv':'');
+  b.title=String(state.h[idx]);
+  b.setAttribute('aria-label', (interactive?'play house, ':'house, ')+state.h[idx]+' seeds');
+  fillCup(b, state.h[idx], false);
+  if(interactive && state.h[idx]>0 && !gameOver && !busy){
     b.classList.add('playable');
     b.onclick=()=>humanMove(idx);
-  } else { b.disabled = true; }
+    b.onmouseenter=()=>showPreview(idx);
+    b.onmouseleave=clearPreview;
+    b.addEventListener('focus', ()=>showPreview(idx));
+    b.addEventListener('blur', clearPreview);
+  } else {
+    b.disabled = true;
+  }
   return b;
+}
+
+/* edge number labels: 1–6 from each player's own side; live + clickable
+   when that hole is a legal move for the side to move. */
+function buildKeys(){
+  const kt=$('keysTop'), kb=$('keysBot'); kt.innerHTML=''; kb.innerHTML='';
+  const humanTurn = !gameOver && (mode==='2p' || state.turn===0);
+  const legal = gameOver ? [] : legalMoves(state,rules);
+  kb.classList.toggle('active', !gameOver && state.turn===0);
+  kt.classList.toggle('active', !gameOver && state.turn===1);
+  for(let c=0;c<6;c++){
+    const hb=c;                    /* bottom: house c, labelled c+1 left→right */
+    const sb=document.createElement('span'); sb.textContent=c+1;
+    if(humanTurn && state.turn===0 && legal.includes(hb)){ sb.classList.add('live'); sb.onclick=()=>humanMove(hb); }
+    kb.appendChild(sb);
+    const ht=11-c;                 /* top: house 11-c, labelled 6-c (player 2's own 1–6) */
+    const st=document.createElement('span'); st.textContent=6-c;
+    if(humanTurn && state.turn===1 && legal.includes(ht)){ st.classList.add('live'); st.onclick=()=>humanMove(ht); }
+    kt.appendChild(st);
+  }
 }
 
 function render(){
   const top=$('rowTop'), bot=$('rowBot'); top.innerHTML=''; bot.innerHTML='';
   const humanTurn = !gameOver && (mode==='2p' || state.turn===0);
-  /* top row = player 1 houses 11..6 (left-to-right mirrors a facing board) */
-  for(let i=11;i>=6;i--) top.appendChild(cellNode(i, humanTurn && state.turn===1));
+  /* top row = player 1 houses 11..6 (mirrors a board faced from the bottom) */
+  for(let i=11;i>=6;i--){ const el=buildHouse(i, humanTurn && state.turn===1); houseEls[i]=el; top.appendChild(el); }
   /* bottom row = player 0 houses 0..5 */
-  for(let i=0;i<6;i++)  bot.appendChild(cellNode(i, humanTurn && state.turn===0));
+  for(let i=0;i<6;i++){ const el=buildHouse(i, humanTurn && state.turn===0); houseEls[i]=el; bot.appendChild(el); }
 
   $('scoreTop').textContent=state.score[1];
   $('scoreBot').textContent=state.score[0];
-  $('whoTop').className = state.turn===1 && !gameOver ? 'active':'';
-  $('whoBot').className = state.turn===0 && !gameOver ? 'active':'';
   $('whoTop').textContent = mode==='cpu' ? 'Computer' : 'Player 2';
-  $('whoBot').textContent = (mode==='cpu' ? 'You' : 'Player 1') + (state.turn===0?' ▸':'');
-  $('whoTop').textContent += (state.turn===1?' ◂':'');
-  $('turnNote').textContent = gameOver ? '' :
-    (mode==='cpu' ? (state.turn===0?'your move':'computer'):('player '+(state.turn+1)));
+  $('whoBot').textContent = mode==='cpu' ? 'You' : 'Player 1';
+  $('storeLeft').classList.toggle('turn', state.turn===1 && !gameOver);
+  $('storeRight').classList.toggle('turn', state.turn===0 && !gameOver);
+  buildKeys();
 }
 
 function setStatus(msg, cls){ const s=$('status'); s.textContent=msg; s.className='status'+(cls?' '+cls:''); }
 
+/* ---- the signature: counterclockwise sowing, one seed per house ---- */
+function sowPath(s, house){
+  let seeds=s.h[house], i=house; const path=[];
+  while(seeds>0){ i=(i+1)%HOUSES; if(i===house) continue; path.push(i); seeds--; }
+  return path;
+}
+function postSowBoard(pre, house, path){
+  const b=clone(pre); b.h[house]=0; for(const idx of path) b.h[idx]++; return b;
+}
+
+/* ---- hover fill-preview: lights every cup a move would sow into ---- */
+function clearPreview(){
+  for(const el of houseEls){ if(el) el.classList.remove('pv1','pv2','pvland','pvsrc'); }
+}
+function showPreview(house){
+  if(!previewOn || busy || gameOver) return;
+  if(!(mode==='2p' || state.turn===0)) return;          /* active human only */
+  if(!belongs(house, state.turn) || state.h[house]===0) return;
+  clearPreview();
+  const path = sowPath(state, house);
+  if(!path.length) return;
+  const recv = {};                                      /* house -> seeds it receives */
+  for(const idx of path) recv[idx] = (recv[idx]||0) + 1;
+  houseEls[house] && houseEls[house].classList.add('pvsrc');
+  for(const k in recv){
+    const el = houseEls[k];
+    if(el) el.classList.add(recv[k] >= 2 ? 'pv2' : 'pv1');   /* lapped cups read heavier */
+  }
+  const landing = path[path.length-1];
+  houseEls[landing] && houseEls[landing].classList.add('pvland');
+}
+function setPreview(on){
+  previewOn = on;
+  if(!on) clearPreview();
+  const lg=$('legend'); if(lg) lg.classList.toggle('show', on);
+  const fb=$('previewBtnFocus'), cb=$('previewBtn');
+  if(cb){ cb.classList.toggle('on', on); cb.setAttribute('aria-pressed', on?'true':'false'); cb.textContent = on?'Preview: on':'Preview: off'; }
+  if(fb){ fb.classList.toggle('on', on); fb.setAttribute('aria-pressed', on?'true':'false'); fb.textContent = on?'◌ Preview':'◌ Preview off'; }
+}
+function pulseStore(prevScore){
+  if(state.score[0]>prevScore[0]) $('storeRight').classList.add('gain');
+  if(state.score[1]>prevScore[1]) $('storeLeft').classList.add('gain');
+  setTimeout(()=>{ $('storeLeft').classList.remove('gain'); $('storeRight').classList.remove('gain'); }, 360);
+}
+
+function animateMove(pre, house, path, finalState, settle){
+  if(reducedMotion()){ settle(); return; }
+  const post = postSowBoard(pre, house, path);
+  const capHouses=[]; for(let i=0;i<HOUSES;i++) if(finalState.h[i] < post.h[i]) capHouses.push(i);
+
+  /* show pre-state with the chosen house lifted (emptied) */
+  state = clone(pre); state.h[house]=0; render();
+
+  let k=0; const total=path.length;
+  const stepDelay = total>14 ? 26 : (total>8 ? 42 : 64);
+  const tick = ()=>{
+    if(k<total){
+      const idx=path[k]; state.h[idx]++;
+      fillCup(houseEls[idx], state.h[idx], true);
+      houseEls[idx].title=String(state.h[idx]);
+      k++; setTimeout(tick, stepDelay);
+    } else if(capHouses.length){
+      for(const idx of capHouses) houseEls[idx].classList.add('capturing');
+      setTimeout(settle, 420);
+    } else {
+      setTimeout(settle, 90);
+    }
+  };
+  setTimeout(tick, 90);
+}
+
+function doMove(house, done){
+  const pre = clone(state);
+  const path = sowPath(pre, house);
+  const r = applyMove(pre, house, rules);
+  lastLand = r.info.landing; lastFrom = house;
+  const finalState = r.state;
+  const msg = r.info.captured>0
+    ? 'Captured '+r.info.captured+' seed'+(r.info.captured>1?'s':'')+(r.info.grandSlam?' — grand slam':'')+'.'
+    : 'Sown.';
+  animateMove(pre, house, path, finalState, ()=>{
+    const prevScore = state.score.slice();
+    state = finalState;
+    setStatus(msg, r.info.captured>0 ? 'cap' : null);
+    pulseStore(prevScore);
+    checkEnd();
+    done();        /* clear busy / schedule AI BEFORE rendering, so cups re-enable */
+    render();
+  });
+}
+
 function humanMove(house){
   if(busy||gameOver) return;
   const legal=legalMoves(state,rules);
-  if(!legal.includes(house)){ setStatus('Illegal move — try another house.','lose'); return; }
-  doMove(house);
-  if(gameOver) return;
-  if(mode==='cpu' && state.turn===1){ busy=true; setStatus('Computer thinking…'); render();
-    setTimeout(aiMove, 180); }
+  if(!legal.includes(house)){ setStatus('Not a legal house — pick another.','warn'); return; }
+  busy=true;
+  doMove(house, ()=>{
+    busy=false;
+    if(gameOver) return;
+    if(mode==='cpu' && state.turn===1){
+      busy=true; setStatus('Opponent considering…'); render();
+      setTimeout(aiTurn, 240);
+    }
+  });
 }
 
-function doMove(house){
-  const r=applyMove(state,house,rules); state=r.state; lastLand=r.info.landing;
-  if(r.info.captured>0) setStatus('Captured '+r.info.captured+(r.info.grandSlam?' (grand slam)':'')+'.');
-  else setStatus('Sown.');
-  checkEnd(); render();
-}
-
-function aiMove(){
+function aiTurn(){
   const mv=chooseMove(state,rules,difficulty);
-  busy=false;
-  if(mv===null){ checkEnd(); render(); return; }
-  doMove(mv);
+  if(mv===null){ busy=false; checkEnd(); render(); return; }
+  doMove(mv, ()=>{ busy=false; });
 }
 
 function checkEnd(){
@@ -390,23 +832,25 @@ function checkEnd(){
     const humanWon=(o.outcome===0);
     msg=(humanWon?'You win ':'Computer wins ')+o.score[0]+'–'+o.score[1]+'.';
     cls=humanWon?'win':'lose';
-    recordCpu(difficulty, o.outcome==='draw'?'draw':(humanWon?'win':'lose'));
+    recordCpu(difficulty, humanWon?'win':'lose');
   } else {
-    msg='Player '+(o.outcome+1)+' wins '+o.score[Math.max(o.outcome,0)]+'–'+o.score[o.outcome^1]+'.'; cls='win';
+    const hi=Math.max(o.score[0],o.score[1]), lo=Math.min(o.score[0],o.score[1]);
+    msg='Player '+(o.outcome+1)+' wins '+hi+'–'+lo+'.'; cls='win';
   }
   setStatus('Game over — '+msg, cls);
 }
 
 function newGame(){
   mode=$('mode').value; difficulty=$('difficulty').value; rules=readRules();
-  state=newState(); gameOver=false; lastLand=-1; busy=false;
+  state=newState(); gameOver=false; lastLand=-1; lastFrom=-1; busy=false;
   $('difWrap').style.opacity = mode==='cpu' ? 1 : .4;
-  setStatus(mode==='cpu' ? 'Your move. Keys 1–6 or click.' : 'Player 1 to move.');
+  setStatus(mode==='cpu' ? 'Your move — pick one of your houses to sow.' : 'Player 1 to move.');
   render();
 }
 
 /* keyboard 1-6 -> current player's house */
 document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){ document.body.classList.remove('focus'); return; }
   if(gameOver||busy) return;
   if(e.key>='1' && e.key<='6'){
     const base = state.turn===0 ? 0 : 6;
@@ -414,20 +858,36 @@ document.addEventListener('keydown', e=>{
   }
 });
 
-$('newgame').onclick=newGame;
-$('mode').onchange=newGame;
-$('difficulty').onchange=()=>{ difficulty=$('difficulty').value; };
-$('settingsBtn').onclick=()=>$('settings').classList.toggle('open');
-$('concede').onclick=()=>{
-  if(gameOver) return;
+function toggleSettings(){ $('settings').classList.toggle('open'); }
+function concede(){
+  if(gameOver||busy) return;
+  const prevScore=state.score.slice();
   const t=clone(state); collectSides(t); state.score=t.score;
   for(let i=0;i<HOUSES;i++) state.h[i]=0;
   gameOver=true;
   const o=isOver(state,rules);
-  setStatus('Conceded — '+(o.outcome==='draw'?'draw':((mode==='cpu'?(o.outcome===0?'you win':'computer wins'):'Player '+(o.outcome+1)+' wins')))+' '+state.score[0]+'–'+state.score[1]+'.', mode==='cpu'&&o.outcome===0?'win':'lose');
-  if(mode==='cpu') recordCpu(difficulty, o.outcome==='draw'?'draw':(o.outcome===0?'win':'lose'));
+  const tail = o.outcome==='draw' ? 'draw'
+    : (mode==='cpu' ? (o.outcome===0?'you win':'computer wins') : 'Player '+(o.outcome+1)+' wins');
+  setStatus('Conceded — '+tail+' '+state.score[0]+'–'+state.score[1]+'.',
+            mode==='cpu'&&o.outcome===0?'win':'lose');
+  if(mode==='cpu') recordCpu(difficulty, o.outcome===0?'win':'lose');
+  pulseStore(prevScore);
   render();
-};
+}
+
+$('newgame').onclick=newGame;
+$('mode').onchange=newGame;
+$('difficulty').onchange=()=>{ difficulty=$('difficulty').value; };
+$('settingsBtn').onclick=toggleSettings;
+$('focusBtn').onclick=()=>document.body.classList.add('focus');
+$('exitFocus').onclick=()=>document.body.classList.remove('focus');
+$('previewBtn').onclick=()=>setPreview(!previewOn);
+$('previewBtnFocus').onclick=()=>setPreview(!previewOn);
+$('concede').onclick=concede;
+/* focus-mode icon toolbar mirrors the normal controls */
+$('fNew').onclick=newGame;
+$('fConcede').onclick=concede;
+$('fRules').onclick=toggleSettings;
 $('resetRecords').onclick=()=>{ saveRecords({}); renderRecords(); };
 
 renderRecords();
