@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Awaré — Oware</title>
+<title>Oware</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Spline+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -342,7 +342,7 @@
   .hue-sw:hover{ transform:scale(1.1) }
   .hue-sw.sel{ box-shadow:0 0 0 2px var(--brass-bright), 0 0 8px -2px var(--brass) }
   .hue-sw:focus-visible{ outline:2px solid var(--brass-bright);outline-offset:2px }
-  body.focus .board-area{ display:block;max-width:none }
+  body.focus .board-area{ max-width:none;width:100%;margin:0 }  /* drop auto margin so it fills */
   body.focus .hue-picker{ display:none }
 
   /* ---- learning feature ---- */
@@ -423,8 +423,8 @@
 <div class="wrap">
 
   <header class="mast">
-    <h1 class="wordmark">Awar<em>é</em></h1>
-    <p class="tagline">Oware · the sowing game</p>
+    <h1 class="wordmark">Owar<em>é</em></h1>
+    <p class="tagline">abstract strategy game - pit &amp; pebble</p>
   </header>
 
   <div class="board-area">
@@ -1094,7 +1094,7 @@ function learnRenderLibrary(host, full){
   host.innerHTML='';
   const wrap=document.createElement('div'); wrap.className='learn-wrap';
   const top=document.createElement('div'); top.className='learn-top';
-  const h2=document.createElement('h2'); h2.innerHTML='Awar<em>é</em> · mathematics';
+  const h2=document.createElement('h2'); h2.innerHTML='Owar<em>é</em> · mathematics';
   const prog=document.createElement('span'); prog.className='learn-prog'; prog.textContent=Math.min(learnState.unlockedCount,LEARN_N)+' / '+LEARN_N+' unlocked';
   top.appendChild(h2); top.appendChild(prog);
   const tools=document.createElement('div'); tools.className='learn-tools';
