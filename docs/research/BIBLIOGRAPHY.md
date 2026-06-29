@@ -53,6 +53,12 @@ A focused account of building an Awari endgame database by retrograde analysis �
 our scale than the full Romein & Bal solve, and a direct how-to companion to `REPORT-02`.
 *(Bonus paper obtained inside the CG 2000 proceedings.)* → reviewed in `REPORT-07`.
 
+### Fang, Hsu & Hsu (2000) — *Construction of Chinese Chess Endgame Databases by Retrograde Analysis* ✅ (optional)
+`papers/CG2000-Proceedings-LNCS2063-Computers-and-Games.pdf` (p. 96) · CG 2000, LNCS 2063
+*Not* Awari, but the only other hands-on retrograde-DB construction paper in the pile — indexing,
+symmetry, and decomposition techniques for a convergent game. Left as a **methods footnote** (no
+standalone report); consult if `REPORT-02`'s builder needs more indexing ideas.
+
 ### Romein & Bal (2002) — *Awari Is Solved* — ICGA Journal 25(3):162–165 🔒
 Link: <https://research.vu.nl/en/publications/awari-is-solved>
 The 4-page announcement: Awari is a **draw**; the unique optimal opening is the
@@ -85,7 +91,7 @@ that powered Awari engines before the full solve.
 Mines the *perfect* endgame databases to learn a human-free evaluation function (engine
 **Bambam**, U. Alberta). Directly relevant if you want a strong heuristic AI without
 shipping a 178 GB tablebase. *(Obtained inside the full CG 2000 proceedings, downloaded
-unrestricted from the Internet Archive.)* *(Queued for review — REPORT-09.)*
+unrestricted from the Internet Archive.)* → reviewed in `REPORT-08`.
 
 ### Supervised vs. Unsupervised ML for an Awale/Mancala/Ayo Player ✅
 `papers/Supervised-vs-Unsupervised-ML-Awale-Mancala-Ayo-Player.pdf` · 10 pp · arXiv:1309.1543
@@ -96,7 +102,7 @@ reference for a web-game-sized AI opponent. → reviewed in `REPORT-05`.
 `papers/Daoud-et-al-2004-Ayo-the-Awari-Player-Representation-Trumps-Search.pdf` · 6 pp · IEEE CEC 2004
 Argues a richer *board representation* beats raw search depth for an Awari player — directly
 relevant to whether `oware-web`'s `evalState` features matter more than ply count.
-*(Queued for review — REPORT-08.)*
+→ reviewed in `REPORT-09`.
 
 ### Donkers, Uiterwijk & de Voogt — *Mancala Games: Topics in Mathematics and Artificial Intelligence* 🔒
 Maastricht University survey of the whole mancala family (rules taxonomy, complexity,
@@ -107,7 +113,8 @@ solving status). Link: <https://www.researchgate.net/publication/239523032>
 Sister result on the Kalah variant (Kalah(6,6): first player wins by 2). Good contrast
 for *how the variant's rules change the game value*. Uses iterative-deepening MTD(f) with
 move ordering, transposition tables, futility pruning, enhanced transposition cut-off, and
-endgame databases. *(Retrieved from the first author's site, naml.us.)*
+endgame databases. *(Retrieved from the first author's site, naml.us.)* → reviewed in
+`REPORT-10` (the canonical "how rule changes flip a game's value" case).
 
 ---
 
