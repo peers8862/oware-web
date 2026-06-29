@@ -1,5 +1,4 @@
 {
-  "generated": "2026-06-29",
   "papers": [
     {
       "file": "docs/research/papers/Allis-1994-Searching-for-Solutions-in-Games-and-AI.pdf",
@@ -66,7 +65,7 @@
     {
       "file": "docs/research/REPORT-02-endgame-database-spec.md",
       "title": "Spec: An Oware Endgame Database (Retrograde Analysis) for oware-web",
-      "summary": "Implementation spec for a perfect-play endgame database, derived from: - Stone, Sturtevant & Schaeffer (2024), Set-Based Retrograde Analysis (papers/Set-Based-Retrograde-Analysis-2024.pdf) — the algorithm and the indexing principle. - van den Herik, Uiterwijk & van Rijswijck (2002), Games Solved — why Oware's convergence makes this work (see REPORT-01-foundations.md)."
+      "summary": "Implementation spec for a perfect-play endgame database, derived from: Stone, Sturtevant & Schaeffer (2024), Set-Based Retrograde Analysis (papers/Set-Based-Retrograde-Analysis-2024.pdf) — the algorithm and the indexing principle. van den Herik, Uiterwijk & van Rijswijck (2002), Games Solved — why Oware's convergence makes this work (see REPORT-01-foundations.md)."
     },
     {
       "file": "docs/research/REPORT-03-combinatorics-broline-loeb.md",

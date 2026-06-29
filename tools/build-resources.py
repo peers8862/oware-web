@@ -18,7 +18,6 @@ Then commit the regenerated docs/resources-manifest.json.
 
 See docs/RESOURCE-CONVENTIONS.md for the authoring rules this script relies on.
 """
-import datetime
 import glob
 import json
 import os
@@ -54,7 +53,7 @@ def first_paragraph(lines, start):
             continue
         if ln.startswith("#") or ln.strip() == "---":
             break
-        buf.append(ln.strip())
+        buf.append(re.sub(r"^[-*+]\s+", "", ln.strip()))   # drop list-item markers
     return clean(" ".join(buf))
 
 
@@ -134,7 +133,6 @@ def main():
         bibliography.append(parse_md_doc(BIB))
 
     manifest = {
-        "generated": datetime.date.today().isoformat(),
         "papers": papers,
         "reports": reports,
         "overview": overview,

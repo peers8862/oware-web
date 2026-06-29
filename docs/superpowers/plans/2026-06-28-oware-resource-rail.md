@@ -54,8 +54,8 @@ docs → `[]` + `resLoadManifest()` called at startup).
 **Deliverable:** `build-resources.py` parses `BIBLIOGRAPHY.md` for papers
 (`### ` entry + `` `papers/X.pdf` `` reference + description paragraph) and globs
 `REPORT-*.md` (H1 + first paragraph) plus overview/bibliography, emitting
-`resources-manifest.json` (`{generated, papers[], reports[], overview[],
-bibliography[]}`, each doc `{file,title,summary}`). The page fetches it at
+`resources-manifest.json` (`{papers[], reports[], overview[],
+bibliography[]}`, each doc `{file,title,summary}`; deterministic output). The page fetches it at
 startup and fills `RESOURCES[*].docs`; graceful empty state on failure.
 Tasks 5–6 consume `doc.summary` (not `doc.meta`).
 

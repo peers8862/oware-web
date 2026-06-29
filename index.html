@@ -1241,13 +1241,12 @@ const RESOURCES = {
   bibliography:{ glyph:'book', label:'Bibliography', docs:[] }
 };
 const RES_ORDER = ['papers','reports','overview','bibliography'];
-let resManifest=null;
 /* Populate RESOURCES[*].docs from the generated manifest. Each doc is
    {file, title, summary}. On failure (offline/file://) docs stay empty and
    overlays show a graceful empty state. */
 function resLoadManifest(cb){
   fetch('docs/resources-manifest.json').then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
-    .then(m=>{ resManifest=m; for(const k of RES_ORDER){ if(RESOURCES[k] && Array.isArray(m[k])) RESOURCES[k].docs=m[k]; } if(cb) cb(); })
+    .then(m=>{ for(const k of RES_ORDER){ if(RESOURCES[k] && Array.isArray(m[k])) RESOURCES[k].docs=m[k]; } if(cb) cb(); })
     .catch(()=>{ if(cb) cb(); });
 }
 function resGlyphSvg(id){ return '<svg class="res-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" aria-hidden="true">'+(RES_GLYPHS[id]||'')+'</svg>'; }

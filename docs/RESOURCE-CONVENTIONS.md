@@ -68,7 +68,6 @@ Both are single fixed documents; their paths live in `tools/build-resources.py`.
 
 ```json
 {
-  "generated": "YYYY-MM-DD",
   "papers":       [{ "file": "docs/research/papers/X.pdf", "title": "…", "summary": "…" }],
   "reports":      [{ "file": "docs/research/REPORT-01-….md", "title": "…", "summary": "…" }],
   "overview":     [{ "file": "docs/oware-mathematical-architecture.md", "title": "…", "summary": "…" }],
