@@ -911,7 +911,7 @@ function doMove(house, done){
   const path = sowPath(pre, house);
   const r = applyMove(pre, house, rules);
   lastLand = r.info.landing; lastFrom = house; movesPlayed++;
-  learnState.totalMoves++; learnCheckUnlocks(); learnSave();
+  learnState.totalMoves++; learnCheckUnlocks(); learnSave(); lessonAdvance();
   const finalState = r.state;
   const msg = r.info.captured>0
     ? 'Captured '+r.info.captured+' seed'+(r.info.captured>1?'s':'')+(r.info.grandSlam?' — grand slam':'')+'.'
@@ -1049,7 +1049,7 @@ const LEARN=[
 const LEARN_N=LEARN.length;
 
 function learnLoad(){
-  const d={totalMoves:0, pace:'extended', unlockedCount:2, seenIds:[]};
+  const d={totalMoves:0, pace:'extended', unlockedCount:2, seenIds:[], lessonCursor:0, lessonFresh:false};
   try{ const s=JSON.parse(localStorage.getItem(LEARN_KEY)); if(s&&typeof s==='object') return Object.assign(d,s); }catch(e){}
   return d;
 }
@@ -1268,6 +1268,32 @@ function resRailRender(){
 function lessonOpen(){ /* Task 3 */ }
 function resOpen(key){ /* Tasks 5–6 */ }
 
+function lessonUnlockedList(){ return LEARN.filter(learnIsUnlocked); }
+function lessonCurrent(){ const u=lessonUnlockedList(); if(!u.length) return null;
+  let i=learnState.lessonCursor; if(i<0||i>=u.length){ i=0; learnState.lessonCursor=0; } return u[i]; }
+function lessonAdvance(){
+  const u=lessonUnlockedList(); if(u.length<=1){ learnState.lessonFresh=true; lessonBadgeUpdate(); return; }
+  learnState.lessonCursor=(learnState.lessonCursor+1)%u.length;
+  learnState.lessonFresh=true; learnSave(); lessonBadgeUpdate();
+}
+function lessonStep(dir){ const u=lessonUnlockedList(); if(!u.length) return;
+  learnState.lessonCursor=((learnState.lessonCursor+dir)%u.length+u.length)%u.length; learnSave(); }
+function lessonBadgeUpdate(){ const el=$('lessonBadge'); if(!el) return;
+  const on=!!learnState.lessonFresh; el.style.display=on?'inline-flex':'none'; el.textContent=on?'':''; }
+function lessonMarkSeen(){ if(learnState.lessonFresh){ learnState.lessonFresh=false; learnSave(); } lessonBadgeUpdate(); }
+
+if(location.search.indexOf('selftest')>=0){
+  const log=[]; const ok=(n,c)=>log.push((c?'PASS':'FAIL')+' '+n);
+  learnState.unlockedCount=4; learnState.lessonCursor=0; learnState.lessonFresh=false;
+  const n0=lessonUnlockedList().length; ok('unlocked=4', n0===4);
+  const first=lessonCurrent().id; lessonAdvance(); const second=lessonCurrent().id;
+  ok('advance changes block', first!==second);
+  ok('fresh set', learnState.lessonFresh===true);
+  for(let i=0;i<10;i++) lessonAdvance(); ok('cursor in range', learnState.lessonCursor<lessonUnlockedList().length);
+  window.__mdSelfTest && window.__mdSelfTest(ok);   /* Task 4 appends md checks here */
+  const pre=document.createElement('pre'); pre.id='selftest'; pre.textContent=log.join('\n'); document.body.appendChild(pre);
+}
+
 $('newgame').onclick=newGame;
 $('mode').onchange=newGame;
 $('difficulty').onchange=()=>{ difficulty=$('difficulty').value; };
@@ -1288,6 +1314,7 @@ $('fLearn').onclick=learnOpenFull;
 learnUpdateBadge();
 hueApply(hueLoad()); hueRenderPicker();
 resLoadManifest(); resRailRender();
+lessonBadgeUpdate();
 renderRecords();
 newGame();
 </script>
