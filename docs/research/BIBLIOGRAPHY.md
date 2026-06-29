@@ -51,7 +51,7 @@ Useful if you ever want to compute or compress your own endgame tablebases.
 `papers/CG2000-Proceedings-LNCS2063-Computers-and-Games.pdf` (chapter) · CG 2000, LNCS 2063
 A focused account of building an Awari endgame database by retrograde analysis — closer to
 our scale than the full Romein & Bal solve, and a direct how-to companion to `REPORT-02`.
-*(Bonus paper obtained inside the CG 2000 proceedings.)*
+*(Bonus paper obtained inside the CG 2000 proceedings.)* → reviewed in `REPORT-07`.
 
 ### Romein & Bal (2002) — *Awari Is Solved* — ICGA Journal 25(3):162–165 🔒
 Link: <https://research.vu.nl/en/publications/awari-is-solved>
@@ -70,7 +70,7 @@ database is 204 billion entries / 178 GB. The definitive engineering account of 
 Author of **Marvin** (Computer Olympiad 2000 gold). Deep treatment of retrograde analysis
 with limited memory and the at-least-draw / at-most-draw / cycle-draw value representation —
 the single most relevant gated item now in hand, and a primary source for `REPORT-02`'s
-database design. *(Retrieved from the ETH Research Collection DSpace API.)*
+database design. *(Retrieved from the ETH Research Collection DSpace API.)* → reviewed in `REPORT-06`.
 
 ### Lincke & Marzetta (2000) — *Large Endgame Databases with Limited Memory Space* — ICGA Journal 23(3):131–138 🔒
 DOI: 10.3233/ICG-2000-23302. The disk-I/O-efficient, one-bit-per-position DB algorithm
@@ -85,12 +85,18 @@ that powered Awari engines before the full solve.
 Mines the *perfect* endgame databases to learn a human-free evaluation function (engine
 **Bambam**, U. Alberta). Directly relevant if you want a strong heuristic AI without
 shipping a 178 GB tablebase. *(Obtained inside the full CG 2000 proceedings, downloaded
-unrestricted from the Internet Archive.)*
+unrestricted from the Internet Archive.)* *(Queued for review — REPORT-09.)*
 
 ### Supervised vs. Unsupervised ML for an Awale/Mancala/Ayo Player ✅
 `papers/Supervised-vs-Unsupervised-ML-Awale-Mancala-Ayo-Player.pdf` · 10 pp · arXiv:1309.1543
 Compares learning techniques for evolving an Awari-playing agent. A practical, modern
-reference for a web-game-sized AI opponent.
+reference for a web-game-sized AI opponent. → reviewed in `REPORT-05`.
+
+### Daoud, Kharma, Haidar & Popoola (2004) — *Ayo, the Awari Player, or How Better Representation Trumps Deeper Search* ✅
+`papers/Daoud-et-al-2004-Ayo-the-Awari-Player-Representation-Trumps-Search.pdf` · 6 pp · IEEE CEC 2004
+Argues a richer *board representation* beats raw search depth for an Awari player — directly
+relevant to whether `oware-web`'s `evalState` features matter more than ply count.
+*(Queued for review — REPORT-08.)*
 
 ### Donkers, Uiterwijk & de Voogt — *Mancala Games: Topics in Mathematics and Artificial Intelligence* 🔒
 Maastricht University survey of the whole mancala family (rules taxonomy, complexity,
