@@ -43,7 +43,32 @@ Assertions are `grep` over `/tmp/dom.html`; visuals are eyeballed from the PNG. 
 
 ---
 
+### Task R: Auto-sensed resource manifest (amendment, 2026-06-29)
+
+Supersedes Task 1's hand-typed `docs` arrays (see spec §3a). Implemented mid-flight.
+
+**Files:** Create `tools/build-resources.py`, `docs/RESOURCE-CONVENTIONS.md`,
+`docs/resources-manifest.json` (generated); modify `index.html` (`RESOURCES`
+docs → `[]` + `resLoadManifest()` called at startup).
+
+**Deliverable:** `build-resources.py` parses `BIBLIOGRAPHY.md` for papers
+(`### ` entry + `` `papers/X.pdf` `` reference + description paragraph) and globs
+`REPORT-*.md` (H1 + first paragraph) plus overview/bibliography, emitting
+`resources-manifest.json` (`{generated, papers[], reports[], overview[],
+bibliography[]}`, each doc `{file,title,summary}`). The page fetches it at
+startup and fills `RESOURCES[*].docs`; graceful empty state on failure.
+Tasks 5–6 consume `doc.summary` (not `doc.meta`).
+
+**Verify:** `python3 tools/build-resources.py` reports papers/reports counts and
+warns on orphan PDFs; served page loads with no JS errors, 5 studs, manifest
+HTTP 200 with expected counts. Commit.
+
+---
+
 ### Task 1: RESOURCES data, SVG glyphs, and the knowledge rail
+
+> **Amended:** the `docs` arrays in this task are superseded by Task R
+> (manifest-driven). Task 1's CSS/HTML/glyphs/render remain as-is.
 
 **Files:**
 - Modify `index.html`: add CSS (after the `/* ---- board colour (hue) picker ---- */` block, ~line 346), HTML (`#resRail` inside `.board-area`, ~line 449), and JS (new resource module before the final `$('newgame').onclick=…` wiring, ~line 1192).
@@ -576,7 +601,7 @@ function resRenderShell(){
   if(set.docs.length>1){
     const idx=document.createElement('div'); idx.className='res-index';
     set.docs.forEach((d,n)=>{ const b=document.createElement('button'); if(n===resDocIdx) b.classList.add('sel');
-      b.innerHTML='<span>'+d.title+'</span>'+(d.meta?'<span class="meta">'+d.meta+'</span>':'');
+      b.innerHTML='<span>'+d.title+'</span>'+(d.summary?'<span class="meta">'+d.summary+'</span>':'');
       b.onclick=()=>{ resDocIdx=n; resRenderShell(); }; idx.appendChild(b); });
     body.appendChild(idx);
   }

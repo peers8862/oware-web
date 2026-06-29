@@ -42,7 +42,7 @@ left-side board-hue picker. **No engine changes.**
 | Rail iconography | **Inline-SVG brass-stroke glyphs** (not emoji), icon-only with hover/focus labels |
 | Rail placement | **Right** of the board, mirroring the hue picker; hidden in focus mode |
 | Mobile layout | Below ~520px the rail **reflows to a horizontal strip beneath the board** |
-| Paper list source | **Data-driven** from a metadata map (`RESOURCES`), not a hardcoded count |
+| Paper list source | **Auto-sensed** — see Amendment §3a (manifest generated from `BIBLIOGRAPHY.md` + reports) |
 
 Out of scope (parked in `docs/game-evolution-notes.md`): profiles/IndexedDB,
 saving/collecting lesson cards, context-triggered lessons, gain-points economy,
@@ -135,6 +135,35 @@ lessonFresh: false  // a new lesson is waiting → rail badge shown
 Defaults merge over the existing loader so older saved state upgrades cleanly.
 
 ---
+
+## 3a. Amendment (2026-06-29) — auto-sensed resource manifest
+
+Supersedes the hardcoded `docs` arrays in §3. The rail's resource lists are
+**auto-sensed at build time** so adding a paper or report needs no code edit.
+
+- **`tools/build-resources.py`** scans the repo and writes
+  **`docs/resources-manifest.json`**:
+  - **papers** — parsed from `docs/research/BIBLIOGRAPHY.md` (the registry):
+    every `### …` entry that references an existing `` `papers/<file>.pdf` ``
+    becomes `{file, title, summary}` (heading → title, description paragraph →
+    summary). Gated (link-only) entries are skipped. A proceedings PDF
+    referenced twice yields two entries pointing at the same file (intentional).
+  - **reports** — every `docs/research/REPORT-*.md`, self-describing: `# H1` →
+    title (leading `Report:` stripped), first paragraph → summary.
+  - **overview** — `docs/oware-mathematical-architecture.md`; **bibliography** —
+    `BIBLIOGRAPHY.md` itself.
+  - The script warns on any downloaded PDF the bibliography never references and
+    any reference whose PDF is missing.
+- **`RESOURCES`** in `index.html` keeps only each category's `glyph` + `label`;
+  `docs` is `[]` and filled at startup by `resLoadManifest()` (fetches the
+  manifest). On fetch failure (`file://`) docs stay empty and overlays show a
+  graceful empty state.
+- Doc objects are `{file, title, summary}` (not `meta`).
+- **`docs/RESOURCE-CONVENTIONS.md`** documents the authoring rules for future
+  contributors; the manifest is generated — never hand-edited.
+
+This eliminates the fabricated-path / missing-file class of bug: paths come from
+real files on disk and the bibliography, not hand-typed lists.
 
 ## 4. The knowledge rail
 
