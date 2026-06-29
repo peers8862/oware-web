@@ -1,0 +1,106 @@
+# Oware / Awari — Mathematics & Game-Theory Bibliography
+
+Research collection for the `oware-web` project. Downloaded PDFs live in `./papers/`.
+Gated items list a stable link instead.
+
+Oware is the canonical variant of **Awari** (the academic name for the 6×2, 4-seeds
+mancala game). Almost all rigorous mathematical work uses "Awari" or "Ayo", so search
+on those terms. The headline result: **Awari is a draw under perfect play** (Romein &
+Bal, 2002), making it one of the larger games ever *strongly solved*.
+
+---
+
+## Tier 1 — The core results (downloaded ✅)
+
+### Allis (1994) — *Searching for Solutions in Games and Artificial Intelligence* ✅
+`papers/Allis-1994-Searching-for-Solutions-in-Games-and-AI.pdf` · 223 pp · PhD thesis, U. Limburg
+The foundational text on *solving* games. Defines the three solution strengths —
+**ultra-weak, weak, strong** — that frame every result below, and introduces
+proof-number search. Chapter on Awari estimates the search space and argues it is
+"close to solvable." Read this first for the conceptual vocabulary.
+
+### Herik, Uiterwijk & van Rijswijck (2002) — *Games Solved: Now and in the Future* ✅
+`papers/Herik-Uiterwijk-Rijswijck-2002-Games-Solved-Now-and-in-the-Future.pdf` · 35 pp · *Artificial Intelligence* 134
+The standard survey. Tabulates state-space and game-tree complexities for ~25 games
+(Awari among them) and the techniques used to solve each. Best single overview of
+*where Awari sits* in the landscape of solved games.
+
+### Broline & Loeb (1995) — *The Combinatorics of Mancala-Type Games: Ayo, Tchoukaillon, and 1/π* ✅
+`papers/Broline-Loeb-1995-Combinatorics-of-Mancala-Ayo-Tchoukaillon.pdf` · 15 pp · arXiv:math/9502225
+The most *purely mathematical* item here. Analyses sowing/capture endgames as a
+solitaire (Tchoukaillon), derives the periodicity of winning pit-occupancy patterns,
+and proves the seed count in a winning position grows asymptotically like **n²/π**.
+This is combinatorics/number theory, not search — complements the AI papers.
+
+---
+
+## Tier 2 — Solving methods & endgame databases
+
+### Heule & Rothkrantz — *Solving Games: Dependence of Applicable Solving Procedures* ✅
+`papers/Heule-Rothkrantz-Solving-Games-Dependence-of-Applicable-Procedures.pdf` · 28 pp
+Maps which solving techniques (retrograde analysis, αβ, proof-number, databases) apply
+to which game properties (convergent vs. divergent, etc.). Awari is *convergent* (seed
+count never increases until a capture), which is exactly why retrograde analysis works.
+
+### *Set-Based Retrograde Analysis* (2024) ✅
+`papers/Set-Based-Retrograde-Analysis-2024.pdf` · 10 pp · arXiv:2411.09089
+Modern (symbolic/BDD-style) take on the retrograde-analysis algorithm that solved Awari.
+Useful if you ever want to compute or compress your own endgame tablebases.
+
+### Romein & Bal (2002) — *Awari Is Solved* — ICGA Journal 25(3):162–165 🔒
+Link: <https://research.vu.nl/en/publications/awari-is-solved>
+The 4-page announcement: Awari is a **draw**; the unique optimal opening is the
+rightmost pit (pit 6). *(Open PDF not reachable — CiteSeerX is down, ResearchGate gated.
+Request via the VU repository or the authors.)*
+
+### Romein & Bal (2003) — *Solving the Game of Awari using Parallel Retrograde Analysis* — IEEE *Computer* 38(10):26–33 🔒
+Link: <https://research.vu.nl/en/publications/solving-the-game-of-awari-using-parallel-retrograde-analysis>
+DOI: 10.1109/MC.2003.1236468
+The full method paper. Computed all **889 billion** reachable positions; the master
+database is 204 billion entries / 178 GB. The definitive engineering account of the solve.
+
+### Lincke (2002) — *Exploring the Computational Limits of Large Exhaustive Search Problems* 🔒
+ETH Zürich PhD thesis. Link: <https://www.research-collection.ethz.ch/handle/20.500.11850/146939>
+Author of **Marvin** (Computer Olympiad 2000 gold). Deep treatment of retrograde analysis
+with limited memory and the at-least-draw / at-most-draw / cycle-draw value representation.
+*(ETH site is a JS app; download the PDF manually from the handle page.)*
+
+### Lincke & Marzetta (2000) — *Large Endgame Databases with Limited Memory Space* — ICGA Journal 23(3):131–138 🔒
+DOI: 10.3233/ICG-2000-23302. The disk-I/O-efficient, one-bit-per-position DB algorithm
+that powered Awari engines before the full solve.
+
+---
+
+## Tier 3 — Evaluation functions, learning & AI players
+
+### van Rijswijck (2000) — *Learning from Perfection: A Data Mining Approach to Evaluation Function Learning in Awari* 🔒
+CG 2000, LNCS 2063. Link: <https://link.springer.com/chapter/10.1007/3-540-45579-5_8>
+Mines the *perfect* endgame databases to learn a human-free evaluation function (engine
+**Bambam**, U. Alberta). Directly relevant if you want a strong heuristic AI without
+shipping a 178 GB tablebase. *(Springer-gated; LNCS proceedings also on archive.org.)*
+
+### Supervised vs. Unsupervised ML for an Awale/Mancala/Ayo Player ✅
+`papers/Supervised-vs-Unsupervised-ML-Awale-Mancala-Ayo-Player.pdf` · 10 pp · arXiv:1309.1543
+Compares learning techniques for evolving an Awari-playing agent. A practical, modern
+reference for a web-game-sized AI opponent.
+
+### Donkers, Uiterwijk & de Voogt — *Mancala Games: Topics in Mathematics and Artificial Intelligence* 🔒
+Maastricht University survey of the whole mancala family (rules taxonomy, complexity,
+solving status). Link: <https://www.researchgate.net/publication/239523032>
+
+### Irving, Donkers & Uiterwijk (2000) — *Solving Kalah* — ICGA Journal 23(3):139–146 🔒
+Link: <https://www.researchgate.net/publication/2911672_Solving_Kalah>
+Sister result on the Kalah variant (Kalah(6,6): first player wins by 2). Good contrast
+for *how the variant's rules change the game value*.
+
+---
+
+## Reference / starting points
+- Awari — Chessprogramming Wiki: <https://www.chessprogramming.org/Awari> (best link hub)
+- Solved game — Wikipedia: <https://en.wikipedia.org/wiki/Solved_game>
+- Mancala World wiki (Oware / Awari Oracle): <https://mancala.fandom.com/wiki/Oware>
+
+## Notes on access
+`🔒` = no open PDF found via automated download (paywall, ResearchGate login, or a
+JavaScript-only repository). Links point at the most stable landing page; most are
+retrievable through an institutional login or by emailing the authors.
