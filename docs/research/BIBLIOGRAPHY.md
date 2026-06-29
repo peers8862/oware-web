@@ -53,11 +53,12 @@ A focused account of building an Awari endgame database by retrograde analysis �
 our scale than the full Romein & Bal solve, and a direct how-to companion to `REPORT-02`.
 *(Bonus paper obtained inside the CG 2000 proceedings.)* → reviewed in `REPORT-07`.
 
-### Fang, Hsu & Hsu (2000) — *Construction of Chinese Chess Endgame Databases by Retrograde Analysis* ✅ (optional)
+### Fang, Hsu & Hsu (2000) — *Construction of Chinese Chess Endgame Databases by Retrograde Analysis* ✅
 `papers/CG2000-Proceedings-LNCS2063-Computers-and-Games.pdf` (p. 96) · CG 2000, LNCS 2063
 *Not* Awari, but the only other hands-on retrograde-DB construction paper in the pile — indexing,
-symmetry, and decomposition techniques for a convergent game. Left as a **methods footnote** (no
-standalone report); consult if `REPORT-02`'s builder needs more indexing ideas.
+symmetry, and decomposition techniques for a convergent game. → reviewed in `REPORT-11` (cross-game
+methods reference: the one-level symmetry-folding caveat + an independent verification pass for
+`REPORT-02`).
 
 ### Romein & Bal (2002) — *Awari Is Solved* — ICGA Journal 25(3):162–165 🔒
 Link: <https://research.vu.nl/en/publications/awari-is-solved>
