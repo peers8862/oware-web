@@ -1446,7 +1446,15 @@ function mdView(pane, doc){
     .catch(()=>{ pane.innerHTML='<div class="res-status">Couldn’t load this document. '+
       '<a href="'+mdEscape(doc.file)+'" target="_blank" rel="noopener">Open it directly ↗</a></div>'; });
 }
-function pdfView(pane, doc){ /* replaced in Task 6 */ }
+function pdfView(pane, doc){
+  pane.innerHTML='';
+  const frame=document.createElement('iframe'); frame.className='res-pdf';
+  frame.title=doc.title; frame.src=doc.file+'#view=FitH';
+  pane.appendChild(frame);
+  const meta=document.createElement('div');
+  meta.innerHTML='<a class="res-newtab" href="'+mdEscape(doc.file)+'" target="_blank" rel="noopener">Open "'+mdEscape(doc.title)+'" in a new tab ↗</a>';
+  pane.appendChild(meta);
+}
 
 function lessonUnlockedList(){ return LEARN.filter(learnIsUnlocked); }
 function lessonCurrent(){ const u=lessonUnlockedList(); if(!u.length) return null;
