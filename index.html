@@ -715,6 +715,34 @@
   text-decoration-color:var(--brass-dim);cursor:pointer;transition:text-decoration-color .2s }
 .wiki-link:hover{ text-decoration-color:var(--brass);text-decoration-style:solid }
 
+/* wiki popup */
+.wiki-popup{ position:fixed;z-index:52;background:var(--recess);border:1px solid #00000050;border-radius:10px;
+  padding:10px 12px;box-shadow:0 6px 24px #00000060;min-width:200px;max-width:300px }
+.wiki-popup-term{ font-family:'Fraunces',serif;font-size:15px;color:var(--ink);margin-bottom:8px;
+  border-bottom:1px solid #ffffff10;padding-bottom:6px }
+.wiki-popup-row{ display:flex;align-items:center;gap:5px;margin-top:6px;flex-wrap:wrap }
+.wiki-popup-label{ font-size:11px;color:var(--ink-faint);white-space:nowrap }
+.wiki-popup-visit{ text-decoration:none;display:inline-block }
+.wiki-popup-dest{ font-size:10px;color:var(--ink-faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px }
+
+/* post-game insight card */
+.insight-card{ position:fixed;bottom:20px;right:20px;z-index:30;background:var(--loam-2);border:1px solid var(--brass-dim);
+  border-radius:12px;padding:16px 18px;max-width:340px;box-shadow:0 6px 28px #00000050;animation:insightIn .4s ease }
+@keyframes insightIn{ from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.insight-title{ font-family:'Fraunces',serif;font-size:14px;color:var(--brass);margin-bottom:6px }
+.insight-body{ font-size:13px;color:var(--ink);line-height:1.5 }
+.insight-link{ color:var(--brass);text-decoration:underline;text-decoration-style:dotted;font-size:12px }
+.insight-close{ position:absolute;top:8px;right:10px;background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:14px;padding:2px 4px }
+
+/* suggested terms in sidebar */
+.coll-suggestions{ margin-top:auto;border-top:1px solid #ffffff0e;padding-top:8px }
+.coll-sug-title{ font-size:11px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px }
+.coll-sug-list{ display:flex;flex-wrap:wrap;gap:4px }
+.coll-sug-chip{ background:#ffffff08;border:1px solid var(--brass-dim);color:var(--brass);font:inherit;font-size:11px;
+  padding:3px 8px;border-radius:12px;cursor:pointer;transition:background .15s }
+.coll-sug-chip:hover{ background:var(--brass-dim);color:var(--loam) }
+.coll-sug-empty{ font-size:11px;color:var(--ink-faint);font-style:italic }
+
 /* detail modal */
 .coll-detail-overlay{ position:fixed;inset:0;z-index:50;background:#00000080;display:flex;align-items:center;justify-content:center }
 .coll-detail-card{ background:var(--loam-2);border:1px solid #00000050;border-radius:14px;max-width:520px;width:92vw;
@@ -811,9 +839,9 @@
     </label>
     <label id="difWrap">
       <select id="difficulty">
-        <option value="easy">Easy</option>
-        <option value="medium" selected>Medium</option>
-        <option value="hard">Hard</option>
+        <option value="easy">Apprentice</option>
+        <option value="medium" selected>Player</option>
+        <option value="hard">Master</option>
         <option value="custom">Custom</option>
       </select>
     </label>
@@ -901,9 +929,9 @@
     <div class="ai-row">
       <label>Preset
         <select id="aiPreset">
-          <option value="easy">Easy</option>
-          <option value="medium" selected>Medium</option>
-          <option value="hard">Hard</option>
+          <option value="easy">Apprentice</option>
+          <option value="medium" selected>Player</option>
+          <option value="hard">Master</option>
           <option value="custom">Custom</option>
         </select>
       </label>
@@ -2895,11 +2923,13 @@ function checkEnd(){
   tallyRecord(o.score[0], o.score[1]);
   if(mode==='2p') matchHistoryRecord(o.outcome);
   setStatus('Game over — '+msg, cls);
+  setTimeout(showPostGameInsight, 1200);
 }
 
 function newGame(){
   mode=$('mode').value; difficulty=aiConfig.preset; rules=readRules();
   state=newState(); gameOver=false; lastLand=-1; lastFrom=-1; busy=false; movesPlayed=0;
+  const oldInsight=document.querySelector('.insight-card'); if(oldInsight) oldInsight.remove();
   ponderExpectedMove = null;
   /* Clear Worker transposition table for new game */
   if(aiWorker && workerAvailable){
@@ -3469,12 +3499,13 @@ function wikiLinkTerms(el){
       const article = WIKI_TERMS[key];
       if(!article) continue;
       if(m.index>last) frag.appendChild(document.createTextNode(txt.slice(last, m.index)));
-      const a = document.createElement('a');
-      a.href = 'https://en.wikipedia.org/wiki/'+article;
-      a.target = '_blank'; a.rel = 'noopener';
+      const a = document.createElement('span');
       a.className = 'wiki-link';
       a.textContent = m[0];
-      a.title = 'Wikipedia: '+m[0];
+      a.title = 'Click for options';
+      a.dataset.term = m[0];
+      a.dataset.slug = article;
+      a.onclick = function(ev){ ev.preventDefault(); ev.stopPropagation(); wikiPopup(this); };
       frag.appendChild(a);
       last = m.index + m[0].length;
     }
@@ -3482,6 +3513,92 @@ function wikiLinkTerms(el){
     if(last<txt.length) frag.appendChild(document.createTextNode(txt.slice(last)));
     node.parentNode.replaceChild(frag, node);
   }
+}
+
+/** Popup when clicking a wiki-linked term — save to collection or visit Wikipedia */
+let _wikiPopupEl=null;
+function wikiPopupClose(){ if(_wikiPopupEl){ _wikiPopupEl.remove(); _wikiPopupEl=null; } document.removeEventListener('mousedown',_wikiPopupDocDown); }
+function _wikiPopupDocDown(e){ if(_wikiPopupEl && !_wikiPopupEl.contains(e.target)) wikiPopupClose(); }
+function wikiPopup(span){
+  wikiPopupClose();
+  const term=span.dataset.term, slug=span.dataset.slug;
+  const url='https://en.wikipedia.org/wiki/'+slug;
+  const rect=span.getBoundingClientRect();
+
+  const pop=document.createElement('div'); pop.className='wiki-popup';
+  pop.style.left=Math.max(4, rect.left + rect.width/2 - 120)+'px';
+  pop.style.top=(rect.bottom+6)+'px';
+
+  /* header */
+  const hdr=document.createElement('div'); hdr.className='wiki-popup-term'; hdr.textContent=term;
+  pop.appendChild(hdr);
+
+  /* save row */
+  const saveRow=document.createElement('div'); saveRow.className='wiki-popup-row';
+  const saveLbl=document.createElement('span'); saveLbl.className='wiki-popup-label'; saveLbl.textContent='Save as';
+  saveRow.appendChild(saveLbl);
+  ['term','formula','rule'].forEach(type=>{
+    const btn=document.createElement('button'); btn.className='coll-sel-btn';
+    btn.textContent=type.charAt(0).toUpperCase()+type.slice(1);
+    btn.onclick=()=>{
+      const source = (function(){ const set=RESOURCES[resCurrentKey]; if(set && set.docs[resDocIdx]) return set.docs[resDocIdx].title||set.label; return ''; })();
+      collAdd(collActiveProfile, type, term, source);
+      collActiveTab=type;
+      const sb=document.getElementById('collSidebar'); if(sb) collRefreshCards(sb);
+      wikiPopupClose();
+      collShowSaveToast(type);
+    };
+    saveRow.appendChild(btn);
+  });
+  pop.appendChild(saveRow);
+
+  /* visit row */
+  const visitRow=document.createElement('div'); visitRow.className='wiki-popup-row';
+  const lnk=document.createElement('a'); lnk.className='coll-sel-btn wiki-popup-visit';
+  lnk.href=url; lnk.target='_blank'; lnk.rel='noopener';
+  lnk.textContent='Visit Wikipedia';
+  lnk.onclick=()=>{ setTimeout(wikiPopupClose,100); };
+  visitRow.appendChild(lnk);
+  const dest=document.createElement('span'); dest.className='wiki-popup-dest';
+  dest.textContent=slug.replace(/_/g,' ');
+  visitRow.appendChild(dest);
+  pop.appendChild(visitRow);
+
+  document.body.appendChild(pop);
+  _wikiPopupEl=pop;
+  setTimeout(()=>document.addEventListener('mousedown',_wikiPopupDocDown),0);
+}
+
+/** Post-game insight — show a random relevant concept after a game ends */
+const GAME_INSIGHTS=[
+  {term:'minimax',tip:'The Computer uses Minimax — evaluating all possible moves to pick the best one. Every move you make is countered by the optimal response.'},
+  {term:'alpha-beta pruning',tip:'The AI prunes branches it knows can\'t improve the outcome — a technique called alpha–beta pruning, which makes search much faster.'},
+  {term:'endgame database',tip:'For positions with few seeds left, a perfect-play Endgame Database can tell exactly who wins — no searching needed.'},
+  {term:'retrograde analysis',tip:'Endgame databases are built backwards from final positions — a method called Retrograde Analysis, working from checkmate to opening.'},
+  {term:'game tree',tip:'Every possible sequence of moves forms a Game Tree. Oware\'s tree has roughly 10³² nodes — far too many to search entirely.'},
+  {term:'combinatorics',tip:'Oware\'s mathematics involves Combinatorics — counting arrangements. The number of legal positions is about 889 billion.'},
+  {term:'heuristic',tip:'When perfect search is impossible, the engine uses a Heuristic — an educated guess about which position is better.'},
+  {term:'sowing',tip:'The fundamental action in Oware is Sowing — distributing seeds one-by-one counterclockwise, a process with surprising mathematical depth.'},
+  {term:'capture',tip:'Capturing happens when the last seed lands in an opponent\'s house containing 2 or 3 seeds. Chaining captures backwards is key strategy.'},
+  {term:'grand slam',tip:'A Grand Slam (capturing all opponent\'s seeds at once) is forbidden in standard rules — it would leave nothing to play with.'},
+  {term:'evaluation function',tip:'The AI scores positions using an Evaluation Function that weighs seed count, capture threats, and territory — learned from perfect play data.'},
+  {term:'transposition table',tip:'The engine remembers positions it\'s already analysed in a Transposition Table, avoiding redundant work when different move orders reach the same state.'}
+];
+function showPostGameInsight(){
+  const existing=document.querySelector('.insight-card'); if(existing) existing.remove();
+  const ins=GAME_INSIGHTS[Math.floor(Math.random()*GAME_INSIGHTS.length)];
+  const card=document.createElement('div'); card.className='insight-card';
+  const title=document.createElement('div'); title.className='insight-title'; title.textContent='Did you know?';
+  const body=document.createElement('div'); body.className='insight-body'; body.textContent=ins.tip;
+  const slug=WIKI_TERMS[ins.term];
+  if(slug){
+    const lnk=document.createElement('a'); lnk.className='insight-link'; lnk.href='https://en.wikipedia.org/wiki/'+slug;
+    lnk.target='_blank'; lnk.rel='noopener'; lnk.textContent='Learn more →';
+    body.appendChild(document.createTextNode(' ')); body.appendChild(lnk);
+  }
+  const close=document.createElement('button'); close.className='insight-close'; close.textContent='✕'; close.onclick=()=>card.remove();
+  card.appendChild(close); card.appendChild(title); card.appendChild(body);
+  document.body.appendChild(card);
 }
 
 window.__mdSelfTest=function(ok){
@@ -3535,7 +3652,7 @@ function mdView(pane, doc){
   if(!doc){ pane.innerHTML='<div class="res-status">No documents available.</div>'; return; }
   pane.innerHTML='<div class="res-status">Loading '+mdEscape(doc.title)+'…</div>';
   fetch(doc.file).then(r=>{ if(!r.ok) throw new Error(r.status); return r.text(); })
-    .then(txt=>{ const div=document.createElement('div'); div.className='md-body'; div.innerHTML=mdRender(txt); wikiLinkTerms(div); pane.innerHTML=''; pane.appendChild(div); })
+    .then(txt=>{ const div=document.createElement('div'); div.className='md-body'; div.innerHTML=mdRender(txt); wikiLinkTerms(div); pane.innerHTML=''; pane.appendChild(div); const sl=document.getElementById('collSuggestions'); if(sl){ const sll=sl.querySelector('.coll-sug-list'); if(sll) collRefreshSuggestions(sll); } })
     .catch(()=>{
       pane.innerHTML='';
       var frame=document.createElement('iframe');
@@ -3867,6 +3984,17 @@ function collRenderSidebar(host){
   const list=document.createElement('div'); list.className='coll-list'; list.id='collList';
   sb.appendChild(list);
   collRefreshCards(sb);
+
+  /* suggested terms (auto-detected from current report) */
+  const sugWrap=document.createElement('div'); sugWrap.className='coll-suggestions'; sugWrap.id='collSuggestions';
+  const sugTitle=document.createElement('div'); sugTitle.className='coll-sug-title'; sugTitle.textContent='Suggested terms';
+  sugWrap.appendChild(sugTitle);
+  const sugList=document.createElement('div'); sugList.className='coll-sug-list';
+  sugWrap.appendChild(sugList);
+  sb.appendChild(sugWrap);
+  /* populate after report loads */
+  setTimeout(()=>collRefreshSuggestions(sugList), 600);
+
   host.appendChild(sb);
 }
 
@@ -3888,6 +4016,45 @@ function collRefreshCards(sidebar){
     card.onclick=()=>collOpenDetail(item.id);
     list.appendChild(card);
   });
+}
+
+/** Scan current report pane for wiki terms and show as clickable suggestions */
+function collRefreshSuggestions(sugList){
+  if(!sugList) return;
+  sugList.innerHTML='';
+  const pane=document.querySelector('.res-pane .md-body');
+  if(!pane){ sugList.innerHTML='<span class="coll-sug-empty">Open a report to see suggestions.</span>'; return; }
+  const text=pane.textContent||'';
+  const found=new Map();
+  _wikiRe.lastIndex=0;
+  let m;
+  while((m=_wikiRe.exec(text))!==null){
+    const key=m[1].toLowerCase();
+    if(!found.has(key)) found.set(key, m[1]);
+  }
+  _wikiRe.lastIndex=0;
+  if(!found.size){ sugList.innerHTML='<span class="coll-sug-empty">No terms detected.</span>'; return; }
+  /* already saved terms */
+  const saved=new Set(collLoad(collActiveProfile).map(it=>it.text.toLowerCase()));
+  let count=0;
+  for(const [key, display] of found){
+    if(saved.has(key)) continue;
+    if(count>=15) break;
+    const chip=document.createElement('button'); chip.className='coll-sug-chip';
+    chip.textContent=display;
+    chip.title='Click to save as term';
+    chip.onclick=()=>{
+      const source=(function(){ const set=RESOURCES[resCurrentKey]; if(set && set.docs[resDocIdx]) return set.docs[resDocIdx].title||set.label; return ''; })();
+      collAdd(collActiveProfile,'term',display,source);
+      collActiveTab='term';
+      const sb=document.getElementById('collSidebar'); if(sb){ sb.querySelectorAll('.coll-tab').forEach(b=>b.classList.remove('sel')); sb.querySelector('.coll-tab').classList.add('sel'); collRefreshCards(sb); }
+      chip.remove();
+      collShowSaveToast('term');
+    };
+    sugList.appendChild(chip);
+    count++;
+  }
+  if(!count) sugList.innerHTML='<span class="coll-sug-empty">All detected terms already saved.</span>';
 }
 
 /* --- detail modal --- */
@@ -4046,6 +4213,7 @@ function collShowSaveToast(type){
 function collCleanup(){
   collHideToolbar();
   collCloseDetail();
+  wikiPopupClose();
   if(_collDocMouseDown){ document.removeEventListener('mousedown', _collDocMouseDown); _collDocMouseDown=null; }
   if(_collScrollHide){ const ov=document.getElementById('resScreen'); if(ov) ov.removeEventListener('scroll', _collScrollHide); _collScrollHide=null; }
 }
