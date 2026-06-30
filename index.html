@@ -822,7 +822,7 @@
       </select>
     </label>
     <button class="btn iconbtn hue-toggle-btn" id="hueToggleBtn" title="Board colour" aria-label="Board colour"><span class="hue-toggle-chip"></span></button>
-    <button class="btn on" id="previewBtn" aria-pressed="true">Preview: on</button>
+    <button class="btn iconbtn on" id="previewBtn" aria-pressed="true" title="Toggle move preview" aria-label="Toggle move preview"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M1.5 8c1.5-4 4.5-5.5 6.5-5.5s5 1.5 6.5 5.5c-1.5 4-4.5 5.5-6.5 5.5S3 12 1.5 8z"/></svg></button>
     <button class="btn iconbtn" id="focusBtn" title="Focus board" aria-label="Focus board"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6V3a1 1 0 011-1h3M10 2h3a1 1 0 011 1v3M14 10v3a1 1 0 01-1 1h-3M6 14H3a1 1 0 01-1-1v-3"/></svg></button>
   </div>
 
@@ -957,7 +957,8 @@
 
   <p class="colophon">
     Self-contained, offline, no dependencies. The rules engine is a pure-JS port of
-    the verified native build in <code>mobileos</code>; the AI mirrors its negamax eval.
+    the verified native build in <code>mobileos</code>; the AI mirrors its negamax eval.<br>
+    developed by babb
   </p>
 </div>
 
@@ -2612,8 +2613,8 @@ function setPreview(on){
   if(!on) clearPreview();
   const lg=$('legend'); if(lg) lg.classList.toggle('show', on);
   const fb=$('previewBtnFocus'), cb=$('previewBtn');
-  if(cb){ cb.classList.toggle('on', on); cb.setAttribute('aria-pressed', on?'true':'false'); cb.textContent = on?'Preview: on':'Preview: off'; }
-  if(fb){ fb.classList.toggle('on', on); fb.setAttribute('aria-pressed', on?'true':'false'); fb.textContent = on?'◌ Preview':'◌ Preview off'; }
+  if(cb){ cb.classList.toggle('on', on); cb.setAttribute('aria-pressed', on?'true':'false'); cb.title = on?'Preview on':'Preview off'; }
+  if(fb){ fb.classList.toggle('on', on); fb.setAttribute('aria-pressed', on?'true':'false'); }
 }
 function pulseStore(prevScore){
   if(state.score[0]>prevScore[0]) $('scoreBarBot').classList.add('gain');
@@ -3174,7 +3175,7 @@ function hueRenderPicker(){
    Background scene — street scenes from Oware-playing nations (Unsplash)
    =========================================================================== */
 const BG_SCENES = {
-  ouaga:  { url:'https://images.unsplash.com/photo-1718613959712-67dfdcaac833?w=1920&q=80&auto=format', credit:'MIGUEL BAIXAULI', place:'Ouagadougou, Burkina Faso', id:'822hLqxpkPk' },
+  ouaga:  { url:'https://images.unsplash.com/photo-1552709586-d1aefe5d04b4?w=1920&q=80&auto=format', credit:'Eva Blue', place:'Burkina Faso', id:'2-aMoIuTXd4' },
   accra:  { url:'https://images.unsplash.com/photo-1724428533592-df1c672429ea?w=1920&q=80&auto=format', credit:'Langford Kwabena', place:'Accra, Ghana', id:'InxdRCIzcNo' },
   kumasi: { url:'https://images.unsplash.com/photo-1776153380872-108ba14dc63d?w=1920&q=80&auto=format', credit:'Wietse Jongsma', place:'Kumasi, Ghana', id:'w-jFW9XkDBg' },
   lagos:  { url:'https://images.unsplash.com/photo-1660583165282-546329047b15?w=1920&q=80&auto=format', credit:'Fahd Aminu', place:'Lagos, Nigeria', id:'qbRxe2XYx3k' },
