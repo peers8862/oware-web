@@ -694,16 +694,26 @@
 .coll-empty{ font-size:13px;color:var(--ink-faint);padding:14px 0;text-align:center }
 
 /* selection toolbar */
-.coll-sel-toolbar{ position:fixed;z-index:50;display:flex;gap:4px;background:var(--recess);border:1px solid #00000050;
-  border-radius:9px;padding:4px 6px;box-shadow:0 4px 16px #00000060 }
+.coll-sel-toolbar{ position:fixed;z-index:50;display:flex;gap:6px;align-items:center;background:var(--recess);border:1px solid #00000050;
+  border-radius:9px;padding:5px 8px;box-shadow:0 4px 16px #00000060 }
 .coll-sel-btn{ background:transparent;border:1px solid var(--brass-dim);color:var(--brass);font:inherit;font-size:12px;
   padding:4px 10px;border-radius:6px;cursor:pointer;white-space:nowrap }
 .coll-sel-btn:hover{ background:var(--brass-dim);color:var(--loam) }
+.coll-sel-group{ display:flex;align-items:center;gap:4px }
+.coll-sel-label{ font-size:11px;color:var(--ink-faint);padding:0 2px;white-space:nowrap }
+.coll-sel-sep{ width:1px;align-self:stretch;background:var(--ink-faint);opacity:.3;margin:2px 2px }
+.coll-sel-wiki{ text-decoration:none }
+.coll-sel-dest{ font-size:10px;color:var(--ink-faint);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap }
 
 /* toast */
 .coll-toast{ position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--brass-dim);color:var(--loam);
   font-size:13px;padding:8px 18px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:52 }
 .coll-toast.show{ opacity:1 }
+
+/* wiki links */
+.wiki-link{ color:var(--brass);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;
+  text-decoration-color:var(--brass-dim);cursor:pointer;transition:text-decoration-color .2s }
+.wiki-link:hover{ text-decoration-color:var(--brass);text-decoration-style:solid }
 
 /* detail modal */
 .coll-detail-overlay{ position:fixed;inset:0;z-index:50;background:#00000080;display:flex;align-items:center;justify-content:center }
@@ -2563,7 +2573,9 @@ function render(){
   $('scoreBot').textContent=state.score[0];
   if(mode==='cpu'){
     $('whoTop').textContent = 'Computer';
-    $('whoBot').textContent = 'You';
+    const sel = profilesGetSelected();
+    const pName = sel.south || 'Guest';
+    $('whoBot').textContent = pName === 'Guest' ? 'You' : pName + ' (You)';
   } else {
     const sel = profilesGetSelected();
     $('whoBot').textContent = sel.south;
@@ -3362,6 +3374,116 @@ function mdRender(text){
   }
   flushPara(para); return out.join('\n');
 }
+/* Wikipedia term dictionary — auto-linked in report views */
+const WIKI_TERMS = {
+  'alpha-beta pruning':'Alpha%E2%80%93beta_pruning','alpha–beta pruning':'Alpha%E2%80%93beta_pruning','alpha-beta':'Alpha%E2%80%93beta_pruning',
+  'minimax':'Minimax','negamax':'Negamax','retrograde analysis':'Retrograde_analysis',
+  'transposition table':'Transposition_table','transposition tables':'Transposition_table',
+  'endgame database':'Endgame_tablebase','endgame tablebase':'Endgame_tablebase',
+  'proof-number search':'Proof-number_search','proof number search':'Proof-number_search',
+  'zero-sum game':'Zero-sum_game','zero-sum':'Zero-sum_game',
+  'perfect information':'Perfect_information',
+  'game-tree complexity':'Game_tree','game tree':'Game_tree',
+  'state-space complexity':'Game_complexity','game complexity':'Game_complexity',
+  'branching factor':'Branching_factor',
+  'combinatorial game theory':'Combinatorial_game_theory',
+  'sprague-grundy theorem':'Sprague%E2%80%93Grundy_theorem','sprague–grundy theorem':'Sprague%E2%80%93Grundy_theorem',
+  'combinatorics':'Combinatorics','combinatorial number system':'Combinatorial_number_system',
+  'stars and bars':'Stars_and_bars_(combinatorics)','stars-and-bars':'Stars_and_bars_(combinatorics)',
+  'modular arithmetic':'Modular_arithmetic',
+  'bijection':'Bijection','fixed-point iteration':'Fixed-point_iteration',
+  'pascal\'s triangle':'Pascal%27s_triangle',
+  'perfect hash function':'Perfect_hash_function','hash function':'Hash_function',
+  'zobrist hashing':'Zobrist_hashing',
+  'genetic algorithm':'Genetic_algorithm','genetic algorithms':'Genetic_algorithm',
+  'decision tree':'Decision_tree','decision trees':'Decision_tree',
+  'supervised learning':'Supervised_learning','unsupervised learning':'Unsupervised_learning',
+  'reinforcement learning':'Reinforcement_learning',
+  'neural network':'Neural_network','neural networks':'Neural_network',
+  'support vector machine':'Support_vector_machine','support vector machines':'Support_vector_machine',
+  'bayesian network':'Bayesian_network','bayesian networks':'Bayesian_network',
+  'perceptron':'Perceptron','perceptrons':'Perceptron',
+  'case-based reasoning':'Case-based_reasoning',
+  'linear discriminant analysis':'Linear_discriminant_analysis',
+  'data mining':'Data_mining','feature extraction':'Feature_extraction',
+  'overfitting':'Overfitting','evaluation function':'Evaluation_function',
+  'z-score':'Standard_score','standard deviation':'Standard_deviation',
+  'normal distribution':'Normal_distribution','gaussian':'Normal_distribution',
+  'boolean function':'Boolean_function',
+  'statistical classification':'Statistical_classification','correlation':'Correlation',
+  'iterative deepening':'Iterative_deepening_depth-first_search',
+  'mtd(f)':'MTD-f','futility pruning':'Futility_pruning',
+  'history heuristic':'History_heuristic',
+  'directed acyclic graph':'Directed_acyclic_graph','dag':'Directed_acyclic_graph',
+  'data compression':'Data_compression',
+  'partially ordered set':'Partially_ordered_set','poset':'Partially_ordered_set',
+  'locality of reference':'Locality_of_reference',
+  'mixed-radix':'Mixed_radix',
+  'hypergeometric function':'Hypergeometric_function',
+  'gamma function':'Gamma_function',
+  'asymptotic analysis':'Asymptotic_analysis',
+  'least common multiple':'Least_common_multiple','lcm':'Least_common_multiple',
+  'sieve of eratosthenes':'Sieve_of_Eratosthenes',
+  'number theory':'Number_theory',
+  'nim':'Nim','impartial game':'Impartial_game','partisan game':'Partisan_game',
+  'np':'NP_(complexity)','pspace':'PSPACE',
+  'conservation law':'Conservation_law','symmetry':'Symmetry',
+  'crossover':'Crossover_(genetic_algorithm)','mutation':'Mutation_(genetic_algorithm)',
+  'gödel numbering':'G%C3%B6del_numbering',
+  'paul erdős':'Paul_Erd%C5%91s','erdős':'Paul_Erd%C5%91s',
+  'carl friedrich gauss':'Carl_Friedrich_Gauss','gauss':'Carl_Friedrich_Gauss',
+  'marijn heule':'Marijn_Heule',
+  'jaap van den herik':'Jaap_van_den_Herik','van den herik':'Jaap_van_den_Herik',
+  'feng-hsiung hsu':'Feng-hsiung_Hsu',
+  'modular arithmetic':'Modular_arithmetic',
+  'parity':'Parity_(mathematics)','convergence':'Convergence_(mathematics)',
+  'finite game':'Finite_game','sequential game':'Sequential_game',
+  'deterministic':'Deterministic_algorithm',
+  'knowledge representation':'Knowledge_representation_and_reasoning'
+};
+
+/* Build regex from dictionary keys (longest first for greedy match) */
+const _wikiKeys = Object.keys(WIKI_TERMS).sort((a,b)=>b.length-a.length);
+const _wikiRe = new RegExp('\\b('+_wikiKeys.map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\b','gi');
+
+/** Post-process a .md-body element to add Wikipedia links to known terms */
+function wikiLinkTerms(el){
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+  const nodes = [];
+  while(walker.nextNode()) nodes.push(walker.currentNode);
+  for(const node of nodes){
+    /* skip if inside a link, code, or heading */
+    let p = node.parentNode;
+    if(p.tagName==='A' || p.tagName==='CODE' || p.tagName==='PRE' || /^H\d$/.test(p.tagName)) continue;
+    const txt = node.textContent;
+    if(!_wikiRe.test(txt)){ _wikiRe.lastIndex=0; continue; }
+    _wikiRe.lastIndex=0;
+    const frag = document.createDocumentFragment();
+    let last = 0, m;
+    const seen = new Set();
+    while((m=_wikiRe.exec(txt))!==null){
+      const key = m[1].toLowerCase();
+      /* only link first occurrence per text node to avoid clutter */
+      if(seen.has(key)) continue;
+      seen.add(key);
+      const article = WIKI_TERMS[key];
+      if(!article) continue;
+      if(m.index>last) frag.appendChild(document.createTextNode(txt.slice(last, m.index)));
+      const a = document.createElement('a');
+      a.href = 'https://en.wikipedia.org/wiki/'+article;
+      a.target = '_blank'; a.rel = 'noopener';
+      a.className = 'wiki-link';
+      a.textContent = m[0];
+      a.title = 'Wikipedia: '+m[0];
+      frag.appendChild(a);
+      last = m.index + m[0].length;
+    }
+    if(last===0) continue; /* no replacements */
+    if(last<txt.length) frag.appendChild(document.createTextNode(txt.slice(last)));
+    node.parentNode.replaceChild(frag, node);
+  }
+}
+
 window.__mdSelfTest=function(ok){
   const h=mdRender('# Title\n\nA **bold** and `code` line.\n\n- one\n- two\n\n| A | B |\n|---|---|\n| 1 | 2 |\n');
   ok('md heading', /<h1>Title<\/h1>/.test(h));
@@ -3413,7 +3535,7 @@ function mdView(pane, doc){
   if(!doc){ pane.innerHTML='<div class="res-status">No documents available.</div>'; return; }
   pane.innerHTML='<div class="res-status">Loading '+mdEscape(doc.title)+'…</div>';
   fetch(doc.file).then(r=>{ if(!r.ok) throw new Error(r.status); return r.text(); })
-    .then(txt=>{ const div=document.createElement('div'); div.className='md-body'; div.innerHTML=mdRender(txt); pane.innerHTML=''; pane.appendChild(div); })
+    .then(txt=>{ const div=document.createElement('div'); div.className='md-body'; div.innerHTML=mdRender(txt); wikiLinkTerms(div); pane.innerHTML=''; pane.appendChild(div); })
     .catch(()=>{
       pane.innerHTML='';
       var frame=document.createElement('iframe');
@@ -3734,7 +3856,7 @@ function collRenderSidebar(host){
 
   /* type tabs */
   const tabs=document.createElement('div'); tabs.className='coll-tabs';
-  [{k:'term',l:'Terms'},{k:'formula',l:'Formulas'},{k:'block',l:'Blocks'}].forEach(t=>{
+  [{k:'term',l:'Terms'},{k:'formula',l:'Formulas'},{k:'block',l:'Blocks'},{k:'rule',l:'Rules'}].forEach(t=>{
     const btn=document.createElement('button'); btn.className='coll-tab'+(t.k===collActiveTab?' sel':''); btn.textContent=t.l;
     btn.onclick=()=>{ collActiveTab=t.k; tabs.querySelectorAll('.coll-tab').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); collRefreshCards(sb); };
     tabs.appendChild(btn);
@@ -3850,20 +3972,44 @@ function collInitSelection(){
     tb.style.left=Math.max(4, rect.left + rect.width/2 - 100)+'px';
     tb.style.top=(rect.bottom+6)+'px';
 
-    ['term','formula','block'].forEach(type=>{
+    /* --- Save section --- */
+    const saveGrp=document.createElement('div'); saveGrp.className='coll-sel-group';
+    const saveLabel=document.createElement('span'); saveLabel.className='coll-sel-label'; saveLabel.textContent='Save';
+    saveGrp.appendChild(saveLabel);
+    const types=['term','formula','block','rule'];
+    types.forEach(type=>{
       const btn=document.createElement('button'); btn.className='coll-sel-btn';
-      btn.textContent='+ '+type.charAt(0).toUpperCase()+type.slice(1);
-      btn.onmousedown=e=>e.preventDefault(); // keep selection
+      btn.textContent=type.charAt(0).toUpperCase()+type.slice(1);
+      btn.onmousedown=e=>e.preventDefault();
       btn.onclick=()=>{
         collAdd(collActiveProfile, type, text, getSource());
         collActiveTab=type;
         const sb=document.getElementById('collSidebar');
-        if(sb){ sb.querySelectorAll('.coll-tab').forEach((b,i)=>{ b.classList.toggle('sel',['term','formula','block'][i]===type); }); collRefreshCards(sb); }
+        if(sb){ sb.querySelectorAll('.coll-tab').forEach((b,i)=>{ b.classList.toggle('sel',types[i]===type); }); collRefreshCards(sb); }
         collHideToolbar();
         collShowSaveToast(type);
       };
-      tb.appendChild(btn);
+      saveGrp.appendChild(btn);
     });
+    tb.appendChild(saveGrp);
+
+    /* --- Wikipedia lookup --- */
+    const lc=text.toLowerCase();
+    const wikiSlug=WIKI_TERMS[lc];
+    if(wikiSlug){
+      const sep=document.createElement('div'); sep.className='coll-sel-sep';
+      tb.appendChild(sep);
+      const lookGrp=document.createElement('div'); lookGrp.className='coll-sel-group';
+      const lnk=document.createElement('a'); lnk.className='coll-sel-btn coll-sel-wiki';
+      lnk.href='https://en.wikipedia.org/wiki/'+wikiSlug;
+      lnk.target='_blank'; lnk.rel='noopener';
+      lnk.textContent='Look up';
+      lnk.onmousedown=e=>e.preventDefault();
+      const dest=document.createElement('span'); dest.className='coll-sel-dest';
+      dest.textContent='wikipedia.org/wiki/'+wikiSlug.replace(/_/g,' ');
+      lookGrp.appendChild(lnk); lookGrp.appendChild(dest);
+      tb.appendChild(lookGrp);
+    }
 
     document.body.appendChild(tb);
     _collToolbar=tb;
@@ -4021,7 +4167,7 @@ $('aiStrength').onclick=toggleAiConfig;
 $('bgScene').onchange = function(){ bgSave(this.value); bgApply(this.value); };
 { const saved = bgLoad();
   if(saved){ $('bgScene').value = saved; bgApply(saved); }
-  else { const rk = bgRandomKey(); $('bgScene').value = rk; bgSave(rk); bgApply(rk); }
+  else { $('bgScene').value = 'ouaga'; bgSave('ouaga'); bgApply('ouaga'); }
 }
 $('hueToggleBtn').onclick = function(){
   const picker = $('huePicker');
